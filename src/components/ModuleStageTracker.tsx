@@ -308,6 +308,8 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
                 key={stage}
                 onClick={() => setSelectedStage(stage)}
                 className={`relative flex flex-col p-3 rounded-lg border text-left transition-all duration-150 cursor-pointer ${
+                  idx === 4 ? 'col-span-2 sm:col-span-1' : ''
+                } ${
                   isSelected
                     ? 'border-indigo-600 bg-indigo-50/50 ring-1 ring-indigo-600/30 shadow-xs'
                     : isDone
@@ -584,7 +586,7 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
                   required
                   value={operatorName}
                   onChange={(e) => setOperatorName(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-stone-300 rounded-lg text-xs text-stone-900 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 shadow-xs"
+                  className="w-full pl-9 pr-3 py-2 bg-white border border-stone-300 rounded-lg text-base sm:text-xs text-stone-900 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 shadow-xs"
                   placeholder="e.g. David Vance"
                 />
               </div>
@@ -599,7 +601,7 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
                 required
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs text-stone-900 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 shadow-xs"
+                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-base sm:text-xs text-stone-900 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 shadow-xs"
               />
             </div>
 
@@ -614,7 +616,7 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
                   required
                   value={timeIn}
                   onChange={(e) => setTimeIn(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-stone-300 rounded-lg text-xs text-stone-900 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 shadow-xs"
+                  className="w-full pl-9 pr-3 py-2 bg-white border border-stone-300 rounded-lg text-base sm:text-xs text-stone-900 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 shadow-xs"
                 />
               </div>
             </div>
@@ -925,7 +927,7 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
             <button
               type="submit"
               disabled={isSaveBlockedByRole}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-xs shadow-sm transition-all cursor-pointer ${
+              className={`w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 sm:py-2.5 rounded-xl sm:rounded-lg font-bold sm:font-semibold text-sm sm:text-xs shadow-md sm:shadow-sm transition-all cursor-pointer ${
                 isSaveBlockedByRole
                   ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
                   : 'bg-indigo-700 hover:bg-indigo-800 active:scale-[0.98] text-white'

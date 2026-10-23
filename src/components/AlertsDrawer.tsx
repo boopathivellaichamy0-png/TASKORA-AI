@@ -49,7 +49,7 @@ export const AlertsDrawer: React.FC<AlertsDrawerProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden bg-stone-900/40 backdrop-blur-xs flex justify-end">
-      <div className="w-full max-w-lg bg-white border-l border-stone-200 shadow-2xl h-full flex flex-col p-6 animate-slideLeft overflow-y-auto">
+      <div className="w-full sm:max-w-lg bg-white border-l border-stone-200 shadow-2xl h-full flex flex-col p-4 sm:p-6 animate-slideLeft overflow-y-auto">
         {/* Drawer Header */}
         <div className="flex items-center justify-between pb-4 border-b border-stone-200 mb-4">
           <div className="flex items-center gap-2.5">

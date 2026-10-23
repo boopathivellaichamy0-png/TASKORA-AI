@@ -193,7 +193,7 @@ export function App() {
       )}
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 pb-24 md:pb-8">
         {/* Active Batch Selector Strip */}
         {activeTab !== 'master' && currentBatch && (
           <BatchSelector
@@ -269,8 +269,8 @@ export function App() {
         }}
       />
 
-      {/* Footer */}
-      <footer className="border-t border-stone-200 py-6 mt-12 bg-white text-center text-xs text-stone-500">
+      {/* Footer (Desktop only) */}
+      <footer className="hidden md:block border-t border-stone-200 py-6 mt-12 bg-white text-center text-xs text-stone-500">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2 text-stone-600 font-medium">
             <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>

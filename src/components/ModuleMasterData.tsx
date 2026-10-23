@@ -372,8 +372,11 @@ export const ModuleMasterData: React.FC<ModuleMasterDataProps> = ({
 
       {/* MODAL: BATCH DETAILS CARD */}
       {activeDetailBatch && detailBatchMetrics && (
-        <div className="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white border border-stone-200 rounded-2xl max-w-2xl w-full p-6 shadow-xl animate-fadeIn relative my-8">
+        <div className="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
+          <div className="bg-white border border-stone-200 rounded-t-2xl sm:rounded-2xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl animate-fadeIn relative my-0 sm:my-8 max-h-[92vh] overflow-y-auto">
+            {/* Mobile Sheet Drag Indicator */}
+            <div className="w-10 h-1 bg-stone-300 rounded-full mx-auto mb-3 sm:hidden" />
+
             <button
               onClick={() => setActiveDetailBatch(null)}
               className="absolute top-4 right-4 p-1.5 rounded-lg text-stone-400 hover:text-stone-800 hover:bg-stone-100 transition-colors cursor-pointer"
@@ -574,9 +577,21 @@ export const ModuleMasterData: React.FC<ModuleMasterDataProps> = ({
 
       {/* MODAL: CREATE BATCH */}
       {isBatchModalOpen && (
-        <div className="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-stone-200 rounded-2xl max-w-lg w-full p-6 shadow-xl animate-fadeIn">
-            <h3 className="text-base font-bold text-stone-900 mb-1">Create New Production Batch</h3>
+        <div className="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
+          <div className="bg-white border border-stone-200 rounded-t-2xl sm:rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl animate-fadeIn max-h-[92vh] overflow-y-auto">
+            {/* Mobile Sheet Drag Indicator */}
+            <div className="w-10 h-1 bg-stone-300 rounded-full mx-auto mb-3 sm:hidden" />
+
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-base font-bold text-stone-900">Create New Production Batch</h3>
+              <button
+                type="button"
+                onClick={() => setIsBatchModalOpen(false)}
+                className="p-1 rounded-lg text-stone-400 hover:text-stone-800 hover:bg-stone-100 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
             <p className="text-xs text-stone-500 mb-4">
               Enter the planned master quantity that all stages will track against.
             </p>
@@ -690,9 +705,21 @@ export const ModuleMasterData: React.FC<ModuleMasterDataProps> = ({
 
       {/* MODAL: CREATE PRODUCT */}
       {isProductModalOpen && (
-        <div className="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-stone-200 rounded-2xl max-w-lg w-full p-6 shadow-xl animate-fadeIn">
-            <h3 className="text-base font-bold text-stone-900 mb-1">Add Garment Master Item</h3>
+        <div className="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
+          <div className="bg-white border border-stone-200 rounded-t-2xl sm:rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl animate-fadeIn max-h-[92vh] overflow-y-auto">
+            {/* Mobile Sheet Drag Indicator */}
+            <div className="w-10 h-1 bg-stone-300 rounded-full mx-auto mb-3 sm:hidden" />
+
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-base font-bold text-stone-900">Add Garment Master Item</h3>
+              <button
+                type="button"
+                onClick={() => setIsProductModalOpen(false)}
+                className="p-1 rounded-lg text-stone-400 hover:text-stone-800 hover:bg-stone-100 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
             <p className="text-xs text-stone-500 mb-4">Register a style pattern in the system.</p>
 
             <form onSubmit={handleCreateProduct} className="space-y-3.5 text-xs">
