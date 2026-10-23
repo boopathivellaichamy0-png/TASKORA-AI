@@ -73,7 +73,11 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="max-w-6xl mx-auto rounded-full px-4 sm:px-6 py-2.5 glass-panel shadow-[0_8px_32px_rgba(0,0,0,0.7)] flex items-center justify-between border border-white/10 transition-all transition-snappy">
           
           {/* Left: Taskora AI Brand Logo & Name */}
-          <div className="flex items-center space-x-2.5 sm:space-x-3 shrink-0">
+          <div 
+            onClick={() => onTabChange('tracker')}
+            className="flex items-center space-x-2.5 sm:space-x-3 shrink-0 cursor-pointer group"
+            title="Taskora AI — Garment Production Neural OS"
+          >
             <TaskoraLogo size={32} />
             {isInstalled && (
               <span className="px-1.5 py-0.5 text-[9px] font-mono font-bold bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 rounded-md">

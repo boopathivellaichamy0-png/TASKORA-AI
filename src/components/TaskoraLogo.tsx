@@ -14,11 +14,11 @@ export const TaskoraLogo: React.FC<TaskoraLogoProps> = ({
   textClassName = '',
 }) => {
   return (
-    <div className={`inline-flex items-center gap-2.5 sm:gap-3 ${className}`}>
-      {/* Taskora AI Geometric Emblem */}
+    <div className={`inline-flex items-center gap-2.5 sm:gap-3 select-none ${className}`}>
+      {/* Taskora AI Radiant Vector Emblem */}
       <div 
-        className="relative shrink-0 flex items-center justify-center rounded-xl p-1 bg-gradient-to-br from-white/10 via-white/[0.03] to-transparent border border-white/15 shadow-[0_0_20px_-3px_rgba(139,92,246,0.5)] transition-all"
-        style={{ width: size, height: size }}
+        className="relative shrink-0 flex items-center justify-center rounded-xl bg-gradient-to-br from-white/10 via-[#0a0a0a] to-[#030303] border border-white/20 shadow-[0_0_20px_-3px_rgba(139,92,246,0.6)] group-hover:shadow-[0_0_25px_rgba(6,182,212,0.8)] transition-all duration-300"
+        style={{ width: size, height: size, padding: size * 0.12 }}
       >
         <svg
           viewBox="0 0 40 40"
@@ -27,50 +27,52 @@ export const TaskoraLogo: React.FC<TaskoraLogoProps> = ({
           className="w-full h-full"
         >
           <defs>
-            <linearGradient id="taskora-grad-1" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+            <linearGradient id="taskora-t-grad" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse">
               <stop offset="0%" stopColor="#8B5CF6" />
               <stop offset="50%" stopColor="#06B6D4" />
               <stop offset="100%" stopColor="#10B981" />
             </linearGradient>
-            <linearGradient id="taskora-grad-2" x1="36" y1="4" x2="4" y2="36" gradientUnits="userSpaceOnUse">
+            <linearGradient id="taskora-accent-grad" x1="36" y1="8" x2="8" y2="36" gradientUnits="userSpaceOnUse">
               <stop offset="0%" stopColor="#06B6D4" />
               <stop offset="100%" stopColor="#8B5CF6" />
             </linearGradient>
             <filter id="taskora-glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="2" result="blur" />
+              <feGaussianBlur stdDeviation="1.5" result="blur" />
               <feComposite in="SourceGraphic" in2="blur" operator="over" />
             </filter>
           </defs>
 
-          {/* Background subtle polygon contour */}
+          {/* Outer faceted hex-shield */}
           <polygon
-            points="20,4 34,12 34,28 20,36 6,28 6,12"
-            fill="rgba(10, 10, 10, 0.6)"
-            stroke="rgba(255, 255, 255, 0.12)"
-            strokeWidth="1.2"
+            points="20,3 35,11.5 35,28.5 20,37 5,28.5 5,11.5"
+            fill="rgba(15, 15, 20, 0.7)"
+            stroke="url(#taskora-t-grad)"
+            strokeWidth="1.5"
+            strokeOpacity="0.4"
           />
 
-          {/* Precision Weave 'T' Emblem: Top horizontal crossbar */}
+          {/* Stylized Modern 'T' with Garment Warp & Weft Thread Weave */}
+          {/* Top Crossbar */}
           <path
-            d="M9 13.5C9 12.1193 10.1193 11 11.5 11H28.5C29.8807 11 31 12.1193 31 13.5C31 14.8807 29.8807 16 28.5 16H11.5C10.1193 16 9 14.8807 9 13.5Z"
-            fill="url(#taskora-grad-1)"
+            d="M8.5 13C8.5 11.6193 9.61929 10.5 11 10.5H29C30.3807 10.5 31.5 11.6193 31.5 13C31.5 14.3807 30.3807 15.5 29 15.5H11C9.61929 15.5 8.5 14.3807 8.5 13Z"
+            fill="url(#taskora-t-grad)"
           />
 
-          {/* Vertical stem of 'T' tapering down with garment needle precision */}
+          {/* Vertical Stem - Precision Needle & Neural Spine */}
           <path
-            d="M17.5 16H22.5V26.5L20 30L17.5 26.5V16Z"
-            fill="url(#taskora-grad-2)"
+            d="M17.5 15.5H22.5V26.5L20 30.5L17.5 26.5V15.5Z"
+            fill="url(#taskora-accent-grad)"
           />
 
-          {/* Neural Connection Nodes */}
-          <circle cx="11.5" cy="13.5" r="1.5" fill="#FFFFFF" />
-          <circle cx="28.5" cy="13.5" r="1.5" fill="#22D3EE" />
-          <circle cx="20" cy="20" r="1.75" fill="#FFFFFF" filter="url(#taskora-glow)" />
-          <circle cx="20" cy="30" r="1.25" fill="#10B981" />
+          {/* Stitch dashes on T crossbar */}
+          <line x1="13" y1="13" x2="27" y2="13" stroke="#FFFFFF" strokeWidth="1" strokeDasharray="2 2" opacity="0.9" />
+          <line x1="20" y1="17" x2="20" y2="25" stroke="#FFFFFF" strokeWidth="1" strokeDasharray="2 2" opacity="0.9" />
 
-          {/* Fiber stitch lines across T */}
-          <line x1="14" y1="13.5" x2="26" y2="13.5" stroke="#FFFFFF" strokeWidth="0.8" strokeDasharray="1.5 1.5" opacity="0.85" />
-          <line x1="20" y1="17" x2="20" y2="25" stroke="#FFFFFF" strokeWidth="0.8" strokeDasharray="1.5 1.5" opacity="0.85" />
+          {/* Luminous Neural Nodes */}
+          <circle cx="11" cy="13" r="1.75" fill="#FFFFFF" />
+          <circle cx="29" cy="13" r="1.75" fill="#22D3EE" />
+          <circle cx="20" cy="20.5" r="2.25" fill="#FFFFFF" filter="url(#taskora-glow)" />
+          <circle cx="20" cy="30.5" r="1.5" fill="#10B981" />
         </svg>
       </div>
 
@@ -81,11 +83,11 @@ export const TaskoraLogo: React.FC<TaskoraLogoProps> = ({
             <span className={`font-serif-instrument tracking-tight text-white font-normal ${textClassName || 'text-xl sm:text-2xl'}`}>
               Taskora
             </span>
-            <span className="ml-1 text-xs font-mono font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] via-[#06B6D4] to-[#10B981]">
+            <span className="ml-1 text-xs font-mono font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] via-[#06B6D4] to-[#10B981]">
               AI
             </span>
           </div>
-          <span className="hidden md:inline-block font-mono text-[9px] uppercase tracking-widest text-[#06B6D4] bg-[#06B6D4]/10 border border-[#06B6D4]/20 px-2 py-0.5 rounded-full">
+          <span className="hidden sm:inline-block font-mono text-[9px] uppercase tracking-widest text-[#06B6D4] bg-[#06B6D4]/10 border border-[#06B6D4]/20 px-2 py-0.5 rounded-full">
             Garment Neural OS
           </span>
         </div>

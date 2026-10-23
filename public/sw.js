@@ -1,5 +1,5 @@
 // Taskora AI Lightweight Service Worker for PWA installability
-const CACHE_NAME = 'taskora-ai-cache-v2';
+const CACHE_NAME = 'taskora-ai-cache-v3';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
