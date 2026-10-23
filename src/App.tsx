@@ -185,7 +185,12 @@ export function App() {
 
         {/* Tab 3: Reports & Audit */}
         {activeTab === 'reports' && (
-          <ModuleReports batches={batches} records={records} />
+          <ModuleReports
+            batches={batches}
+            records={records}
+            selectedBatchNo={selectedBatchNo}
+            onSelectBatch={setSelectedBatchNo}
+          />
         )}
 
         {/* Tab 4: Master Data & Batches */}
@@ -193,6 +198,10 @@ export function App() {
           <ModuleMasterData
             products={products}
             batches={batches}
+            records={records}
+            selectedBatchNo={selectedBatchNo}
+            onSelectBatch={setSelectedBatchNo}
+            onNavigateTo={(tab) => setActiveTab(tab)}
             onAddProduct={handleAddProduct}
             onAddBatch={handleAddBatch}
             currentRole={currentRole}
