@@ -19,7 +19,6 @@ import { ModuleBatchDashboard } from './components/ModuleBatchDashboard';
 import { ModuleReports } from './components/ModuleReports';
 import { ModuleMasterData } from './components/ModuleMasterData';
 import { AlertsDrawer } from './components/AlertsDrawer';
-import { SynapseLanding } from './components/SynapseLanding';
 
 export function App() {
   const [products, setProducts] = useState<Product[]>(getStoredProducts);
@@ -28,7 +27,7 @@ export function App() {
   const [discrepancies, setDiscrepancies] = useState<DiscrepancyReport[]>(getStoredDiscrepancies);
   const [selectedBatchNo, setSelectedBatchNo] = useState<string>(() => batches[0]?.batch_no || 'BATCH-2026-001');
   const [currentRole, setCurrentRole] = useState<UserRole>('Admin');
-  const [activeTab, setActiveTab] = useState<'synapse' | 'tracker' | 'dashboard' | 'master' | 'reports'>('synapse');
+  const [activeTab, setActiveTab] = useState<'tracker' | 'dashboard' | 'master' | 'reports'>('tracker');
   const [isAlertsOpen, setIsAlertsOpen] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'alert' } | null>(null);
 
@@ -68,7 +67,7 @@ export function App() {
 
     setDiscrepancies(prev => [newReport, ...prev]);
     setNotification({
-      message: `📩 Discrepancy Report sent to Admin regarding previous operator ${reportData.previous_operator} (${reportData.previous_stage})!`,
+      message: `📩 Discrepancy Incident reported to Factory Admin for ${reportData.previous_operator} (${reportData.previous_stage})!`,
       type: 'alert'
     });
 
@@ -99,63 +98,68 @@ export function App() {
       submitted_at: new Date().toISOString()
     };
 
-    const nextStageName = getNextStage(recordData.stage_name);
-    const isCompleted = recordData.stage_name === 'Packing';
-
-    // Update batch stage & status
-    const updatedBatches = batches.map(b => {
-      if (b.batch_no === recordData.batch_no) {
-        return {
-          ...b,
-          current_stage: isCompleted ? 'Completed' : nextStageName,
-          status: isCompleted ? ('Completed' as const) : b.status
-        };
-      }
-      return b;
-    });
-
-    const updatedRecords = [...records, newRecord];
-
+    // Update records array
+    const updatedRecords = [newRecord, ...records];
     setRecords(updatedRecords);
-    setBatches(updatedBatches);
 
-    // If an incident discrepancy occurred, log it to Admin
+    // Auto log discrepancy if present
     if (discrepancyToLog) {
-      handleSendDiscrepancyReport(discrepancyToLog);
+      const autoDiscrepancy: DiscrepancyReport = {
+        ...discrepancyToLog,
+        id: `DISC-${Date.now().toString().slice(-4)}`,
+        reported_at: new Date().toISOString()
+      };
+      setDiscrepancies(prev => [autoDiscrepancy, ...prev]);
     }
 
+    // Advance current batch to the next stage
+    const nextStage = getNextStage(recordData.stage_name);
+    setBatches(prevBatches =>
+      prevBatches.map(b => {
+        if (b.batch_no === recordData.batch_no) {
+          const isComplete = nextStage === 'Completed';
+          return {
+            ...b,
+            current_stage: nextStage,
+            status: isComplete ? 'Completed' : 'Active'
+          };
+        }
+        return b;
+      })
+    );
+
     setNotification({
-      message: `✅ ${recordData.stage_name} stage logged successfully! ${
-        isCompleted ? '🎉 Batch completed.' : `Next stage is ${nextStageName}.`
-      }`,
+      message: `✅ Stage ${recordData.stage_name} locked into immutable ledger! Advanced to ${nextStage}.`,
       type: 'success'
     });
 
     setTimeout(() => setNotification(null), 5000);
   };
 
+  // Add Product Master
+  const handleAddProduct = (newProduct: Product) => {
+    setProducts(prev => [...prev, newProduct]);
+    setNotification({
+      message: `Product ${newProduct.product_code} registered in system.`,
+      type: 'success'
+    });
+    setTimeout(() => setNotification(null), 4000);
+  };
+
+  // Add Production Batch Master
   const handleAddBatch = (newBatch: ProductionBatch) => {
     setBatches(prev => [newBatch, ...prev]);
     setSelectedBatchNo(newBatch.batch_no);
-    setActiveTab('tracker');
     setNotification({
-      message: `🚀 Batch ${newBatch.batch_no} created with ${newBatch.total_planned_qty} planned pieces!`,
+      message: `Production Batch ${newBatch.batch_no} created and activated!`,
       type: 'success'
     });
-    setTimeout(() => setNotification(null), 5000);
+    setTimeout(() => setNotification(null), 4000);
   };
 
-  const handleAddProduct = (newProduct: Product) => {
-    setProducts(prev => [newProduct, ...prev]);
-    setNotification({
-      message: `✨ Product ${newProduct.product_code} registered in Master Data!`,
-      type: 'success'
-    });
-    setTimeout(() => setNotification(null), 5000);
-  };
-
+  // Reset to default factory records
   const handleResetData = () => {
-    if (window.confirm('Reset all production batches, products, and stage records to demo data?')) {
+    if (window.confirm('Reset all production stages and return to factory demo records?')) {
       resetStorageToDefaults();
       setProducts(getStoredProducts());
       setBatches(getStoredBatches());
@@ -170,19 +174,31 @@ export function App() {
     }
   };
 
-  if (activeTab === 'synapse') {
-    return (
-      <SynapseLanding
-        onLaunchTracker={() => setActiveTab('tracker')}
-        onOpenDashboard={() => setActiveTab('dashboard')}
-        onOpenReports={() => setActiveTab('reports')}
-      />
-    );
-  }
+  // Live telemetry summary metrics
+  const activeMetrics = currentBatch ? getBatchSummaryMetrics(currentBatch, records) : null;
+
+  const tickerItems = [
+    { label: "SYNAPSE PIPELINE", value: "5-STAGE ACTIVE", color: "text-[#06B6D4]" },
+    { label: "ACTIVE ORDER", value: currentBatch?.batch_no || "NONE", color: "text-white" },
+    { label: "YIELD EFFICIENCY", value: `${activeMetrics?.efficiency || 100}%`, color: "text-[#10B981]" },
+    { label: "ACCOUNTABILITY", value: "ZERO-TOLERANCE", color: "text-[#8B5CF6]" },
+    { label: "SHORTAGES", value: `${activeMetrics?.totalMissing || 0} PCS`, color: (activeMetrics?.totalMissing || 0) > 0 ? "text-[#F43F5E]" : "text-[#10B981]" },
+    { label: "DEFECTS", value: `${activeMetrics?.totalRejected || 0} PCS`, color: "text-[#F59E0B]" },
+    { label: "FACTORY AUDIT", value: "IMMUTABLE LEDGER", color: "text-[#06B6D4]" },
+  ];
 
   return (
-    <div className="min-h-screen bg-[#FAFAF7] text-stone-900 flex flex-col font-sans">
-      {/* Top Navigation */}
+    <div className="relative min-h-screen bg-[#030303] text-[#F3F4F6] selection:bg-[#8B5CF6]/30 selection:text-white flex flex-col font-sans overflow-x-hidden">
+      
+      {/* SYNAPSE FLOATING AMBIENT GLOW ORBS */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
+        <div className="absolute -top-[12%] left-1/2 -translate-x-1/2 w-[750px] h-[550px] rounded-full bg-[rgba(139,92,246,0.22)] blur-[130px] animate-float-orb1" />
+        <div className="absolute top-[30%] -left-[12%] w-[550px] h-[550px] rounded-full bg-[rgba(6,182,212,0.1)] blur-[120px] animate-float-orb2" />
+        <div className="absolute bottom-[5%] -right-[8%] w-[500px] h-[500px] rounded-full bg-[rgba(139,92,246,0.12)] blur-[110px] animate-float-orb1" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+      </div>
+
+      {/* SYNAPSE FLOATING GLASS TOP NAVIGATION */}
       <Navbar
         currentRole={currentRole}
         onRoleChange={setCurrentRole}
@@ -194,17 +210,46 @@ export function App() {
         onTabChange={setActiveTab}
       />
 
+      {/* SYNAPSE INFINITE TELEMETRY TICKER */}
+      <div className="relative z-10 w-full overflow-hidden bg-black/40 border-y border-white/5 py-2.5 mt-4">
+        <div className="flex animate-ticker whitespace-nowrap">
+          {tickerItems.map((item, idx) => (
+            <div key={`tick-1-${idx}`} className="inline-flex items-center space-x-2.5 px-6">
+              <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-neutral-500">
+                {item.label}:
+              </span>
+              <span className={`text-xs font-mono font-medium ${item.color}`}>
+                {item.value}
+              </span>
+              <span className="w-1 h-1 rounded-full bg-white/20 ml-4" />
+            </div>
+          ))}
+          {tickerItems.map((item, idx) => (
+            <div key={`tick-2-${idx}`} className="inline-flex items-center space-x-2.5 px-6">
+              <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-neutral-500">
+                {item.label}:
+              </span>
+              <span className={`text-xs font-mono font-medium ${item.color}`}>
+                {item.value}
+              </span>
+              <span className="w-1 h-1 rounded-full bg-white/20 ml-4" />
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Floating Notification Toast */}
       {notification && (
-        <div className="fixed top-20 right-4 z-50 animate-fadeIn">
-          <div className="px-4 py-3 rounded-xl bg-stone-900 text-white shadow-xl text-xs sm:text-sm font-semibold flex items-center gap-2 border border-stone-800">
+        <div className="fixed top-24 right-4 z-50 animate-fadeIn">
+          <div className="px-4 py-3 rounded-2xl glass-panel text-white shadow-2xl text-xs sm:text-sm font-semibold flex items-center space-x-2.5 border border-white/20">
+            <span className="w-2 h-2 rounded-full bg-[#10B981] animate-ping" />
             <span>{notification.message}</span>
           </div>
         </div>
       )}
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 pb-24 md:pb-8">
+      {/* Main App Container */}
+      <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6 pb-28 lg:pb-12">
         {/* Active Batch Selector Strip */}
         {activeTab !== 'master' && currentBatch && (
           <BatchSelector
@@ -280,15 +325,24 @@ export function App() {
         }}
       />
 
-      {/* Footer (Desktop only) */}
-      <footer className="hidden md:block border-t border-stone-200 py-6 mt-12 bg-white text-center text-xs text-stone-500">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-stone-600 font-medium">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
-            <span>Taskora AI — Garment Production Accountability Engine</span>
+      {/* SYNAPSE EDITORIAL FOOTER */}
+      <footer className="relative z-10 border-t border-white/5 py-8 mt-12 bg-[#050505] text-xs font-mono text-neutral-500">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center space-x-2.5">
+            <div className="w-2 h-2 rounded-full bg-gradient-to-r from-[#8B5CF6] to-[#06B6D4]" />
+            <span className="font-serif-instrument text-base text-white tracking-normal">Synapse Taskora</span>
+            <span className="text-neutral-600">//</span>
+            <span className="text-neutral-400">Garment Production Neural OS</span>
           </div>
-          <div className="text-stone-400">
-            Pipeline: Cutting &rarr; Stitching &rarr; QC &rarr; Finishing &rarr; Packing
+
+          <div className="flex items-center space-x-2.5 px-3 py-1.5 rounded-full bg-white/[0.02] border border-white/5">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]" />
+            </span>
+            <span className="text-[#10B981] font-semibold text-[11px] tracking-wide">
+              All Systems Operational
+            </span>
           </div>
         </div>
       </footer>

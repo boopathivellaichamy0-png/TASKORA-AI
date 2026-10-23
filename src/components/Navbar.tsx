@@ -5,12 +5,11 @@ import {
   AlertTriangle, 
   Shield, 
   RotateCcw, 
-  Layers, 
   BarChart3, 
   FileText, 
   Package, 
   Download,
-  Check
+  BellRing
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -20,8 +19,8 @@ interface NavbarProps {
   alertCount: number;
   discrepancyCount?: number;
   onOpenAlerts: () => void;
-  activeTab: 'synapse' | 'tracker' | 'dashboard' | 'master' | 'reports';
-  onTabChange: (tab: 'synapse' | 'tracker' | 'dashboard' | 'master' | 'reports') => void;
+  activeTab: 'tracker' | 'dashboard' | 'master' | 'reports';
+  onTabChange: (tab: 'tracker' | 'dashboard' | 'master' | 'reports') => void;
 }
 
 const ROLES: UserRole[] = ['Admin', 'Stage Supervisor', 'Operator', 'QC Inspector', 'Viewer'];
@@ -68,235 +67,201 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <>
-      {/* Top Navbar */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 shadow-[0_1px_3px_rgba(0,0,0,0.04)] pt-[env(safe-area-inset-top,0px)]">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16">
-            {/* Brand Logo & Title */}
-            <div className="flex items-center space-x-2.5 sm:space-x-3">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-indigo-700 flex items-center justify-center shadow-xs shrink-0">
-                <Scissors className="w-4 h-4 text-white transform -rotate-45" />
-              </div>
-              <div>
-                <div className="flex items-center space-x-1.5 sm:space-x-2">
-                  <span className="text-base sm:text-lg font-bold tracking-tight text-stone-900">
-                    Taskora<span className="text-indigo-600 font-extrabold">.AI</span>
-                  </span>
-                  <span className="hidden sm:inline-block px-2 py-0.5 text-[10px] font-semibold bg-stone-100 text-stone-700 border border-stone-200 rounded-full tracking-wide">
-                    Garment Tracker
-                  </span>
-                  {isInstalled && (
-                    <span className="px-1.5 py-0.5 text-[9px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-md">
-                      App
-                    </span>
-                  )}
-                </div>
-                <p className="text-[11px] text-stone-500 hidden md:block">
-                  Stage-wise Piece Accountability & Loss Detection
-                </p>
-              </div>
+      {/* SYNAPSE FLOATING GLASS NAVIGATION PILL */}
+      <header className="sticky top-4 z-40 px-3 sm:px-6 w-full pt-[env(safe-area-inset-top,0px)]">
+        <div className="max-w-6xl mx-auto rounded-full px-4 sm:px-6 py-2.5 glass-panel shadow-[0_8px_32px_rgba(0,0,0,0.7)] flex items-center justify-between border border-white/10 transition-all transition-snappy">
+          
+          {/* Left: Synapse Brand Logo (4px gradient circle + Instrument Serif text) */}
+          <div className="flex items-center space-x-2.5 sm:space-x-3 shrink-0">
+            <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-tr from-[#8B5CF6] via-[#06B6D4] to-[#10B981] shadow-[0_0_10px_rgba(139,92,246,0.8)]" />
+            <div className="flex items-center space-x-2">
+              <span className="font-serif-instrument text-xl sm:text-2xl tracking-tight text-white font-normal">
+                Synapse
+              </span>
+              <span className="hidden sm:inline-block font-mono text-[9px] uppercase tracking-widest text-[#06B6D4] bg-[#06B6D4]/10 border border-[#06B6D4]/20 px-2 py-0.5 rounded-full">
+                Garment Neural OS
+              </span>
+              {isInstalled && (
+                <span className="px-1.5 py-0.5 text-[9px] font-mono font-bold bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 rounded-md">
+                  APP
+                </span>
+              )}
             </div>
+          </div>
 
-            {/* Desktop Nav Tabs */}
-            <nav className="hidden md:flex items-center space-x-1 bg-stone-100/80 p-1 rounded-xl border border-stone-200/80">
-              <button
-                onClick={() => onTabChange('synapse')}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-150 cursor-pointer flex items-center space-x-1.5 ${
-                  activeTab === 'synapse'
-                    ? 'bg-stone-900 text-white shadow-xs font-semibold'
-                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
-                }`}
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-[#8B5CF6] to-[#06B6D4]" />
-                <span>Synapse OS</span>
-              </button>
-              <button
-                onClick={() => onTabChange('tracker')}
-                className={`px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-150 cursor-pointer ${
-                  activeTab === 'tracker'
-                    ? 'bg-white text-stone-900 shadow-xs border border-stone-200/60 font-semibold'
-                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
-                }`}
-              >
-                Stage Tracker
-              </button>
-              <button
-                onClick={() => onTabChange('dashboard')}
-                className={`px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-150 cursor-pointer ${
-                  activeTab === 'dashboard'
-                    ? 'bg-white text-stone-900 shadow-xs border border-stone-200/60 font-semibold'
-                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
-                }`}
-              >
-                Live Dashboard
-              </button>
-              <button
-                onClick={() => onTabChange('reports')}
-                className={`px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-150 cursor-pointer ${
-                  activeTab === 'reports'
-                    ? 'bg-white text-stone-900 shadow-xs border border-stone-200/60 font-semibold'
-                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
-                }`}
-              >
-                Reports & Audit
-              </button>
-              <button
-                onClick={() => onTabChange('master')}
-                className={`px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-150 cursor-pointer ${
-                  activeTab === 'master'
-                    ? 'bg-white text-stone-900 shadow-xs border border-stone-200/60 font-semibold'
-                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
-                }`}
-              >
-                Products & Batches
-              </button>
-            </nav>
+          {/* Center: Desktop Nav Tabs (12px uppercase Inter, neutral-400) */}
+          <nav className="hidden lg:flex items-center space-x-1 font-inter">
+            <button
+              onClick={() => onTabChange('tracker')}
+              className={`px-3.5 py-1.5 text-[12px] font-semibold uppercase tracking-wider rounded-full transition-all transition-snappy cursor-pointer ${
+                activeTab === 'tracker'
+                  ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.25)]'
+                  : 'text-neutral-400 hover:text-white hover:bg-white/[0.05]'
+              }`}
+            >
+              Stage Tracker
+            </button>
+            <button
+              onClick={() => onTabChange('dashboard')}
+              className={`px-3.5 py-1.5 text-[12px] font-semibold uppercase tracking-wider rounded-full transition-all transition-snappy cursor-pointer ${
+                activeTab === 'dashboard'
+                  ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.25)]'
+                  : 'text-neutral-400 hover:text-white hover:bg-white/[0.05]'
+              }`}
+            >
+              Live Dashboard
+            </button>
+            <button
+              onClick={() => onTabChange('reports')}
+              className={`px-3.5 py-1.5 text-[12px] font-semibold uppercase tracking-wider rounded-full transition-all transition-snappy cursor-pointer ${
+                activeTab === 'reports'
+                  ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.25)]'
+                  : 'text-neutral-400 hover:text-white hover:bg-white/[0.05]'
+              }`}
+            >
+              Reports & Audit
+            </button>
+            <button
+              onClick={() => onTabChange('master')}
+              className={`px-3.5 py-1.5 text-[12px] font-semibold uppercase tracking-wider rounded-full transition-all transition-snappy cursor-pointer ${
+                activeTab === 'master'
+                  ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.25)]'
+                  : 'text-neutral-400 hover:text-white hover:bg-white/[0.05]'
+              }`}
+            >
+              Products & Batches
+            </button>
+          </nav>
 
-            {/* Right Side: Install Button, Alerts, Role Switcher */}
-            <div className="flex items-center space-x-1.5 sm:space-x-2.5">
-              {/* Install PWA Prompt on mobile/desktop */}
-              {deferredPrompt && (
-                <button
-                  type="button"
-                  onClick={handleInstallClick}
-                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold hover:bg-indigo-100 transition-colors shadow-xs cursor-pointer"
-                  title="Install Taskora AI App on your device"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Install App</span>
-                </button>
-              )}
-
-              {/* Discrepancy Alert Pill */}
-              {discrepancyCount > 0 && (
-                <button
-                  type="button"
-                  onClick={onOpenAlerts}
-                  className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-[11px] sm:text-xs font-semibold shadow-xs hover:bg-rose-100 transition-colors cursor-pointer"
-                  title="Open Discrepancy Reports"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-rose-600 animate-pulse"></span>
-                  <span className="hidden sm:inline">{discrepancyCount} Discrepanc{discrepancyCount > 1 ? 'ies' : 'y'}</span>
-                  <span className="sm:hidden">{discrepancyCount}</span>
-                </button>
-              )}
-
-              {/* Alerts icon button */}
+          {/* Right: Actions, Alerts & Role Selector */}
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            {/* Install PWA Prompt */}
+            {deferredPrompt && (
               <button
+                type="button"
+                onClick={handleInstallClick}
+                className="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-[#8B5CF6]/15 border border-[#8B5CF6]/30 text-[#8B5CF6] text-xs font-semibold hover:bg-[#8B5CF6]/25 transition-colors cursor-pointer"
+                title="Install Synapse PWA App"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Install</span>
+              </button>
+            )}
+
+            {/* Discrepancy Alert Pill */}
+            {discrepancyCount > 0 && (
+              <button
+                type="button"
                 onClick={onOpenAlerts}
-                className="relative p-2 rounded-lg bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-600 hover:text-stone-900 transition-colors shadow-xs cursor-pointer"
-                title="View Alerts & Discrepancies"
+                className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-[#F43F5E]/15 border border-[#F43F5E]/30 text-[#F43F5E] text-xs font-mono font-bold shadow-[0_0_15px_rgba(244,63,94,0.3)] hover:bg-[#F43F5E]/25 transition-colors cursor-pointer"
+                title="Open Discrepancy Reports"
               >
-                <AlertTriangle className={`w-4 h-4 ${alertCount > 0 || discrepancyCount > 0 ? 'text-amber-600' : 'text-stone-400'}`} />
-                {(alertCount > 0 || discrepancyCount > 0) && (
-                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-600 text-[10px] font-bold text-white ring-2 ring-white">
-                    {alertCount + discrepancyCount}
-                  </span>
-                )}
+                <span className="w-1.5 h-1.5 rounded-full bg-[#F43F5E] animate-ping" />
+                <span>{discrepancyCount}</span>
+                <span className="hidden sm:inline font-sans text-[11px] font-semibold uppercase tracking-wider text-rose-300">Shortage</span>
               </button>
+            )}
 
-              {/* Role Switcher */}
-              <div className="flex items-center bg-white border border-stone-200 rounded-lg p-1 shadow-xs">
-                <Shield className="w-3.5 h-3.5 text-indigo-600 ml-1 mr-1" />
-                <select
-                  aria-label="Active User Role"
-                  value={currentRole}
-                  onChange={(e) => onRoleChange(e.target.value as UserRole)}
-                  className="bg-transparent text-xs text-stone-800 font-medium focus:outline-none cursor-pointer pr-1"
-                >
-                  {ROLES.map((role) => (
-                    <option key={role} value={role} className="bg-white text-stone-800">
-                      {role}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            {/* General Alerts Bell */}
+            <button
+              onClick={onOpenAlerts}
+              className="relative p-2 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 text-neutral-400 hover:text-white transition-colors cursor-pointer"
+              title="View Alerts & Audit Warnings"
+            >
+              <AlertTriangle className={`w-3.5 h-3.5 ${alertCount > 0 ? 'text-[#F59E0B]' : 'text-neutral-400'}`} />
+              {alertCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#F59E0B] text-[10px] font-bold text-black ring-2 ring-[#030303]">
+                  {alertCount}
+                </span>
+              )}
+            </button>
 
-              {/* Reset button (Desktop) */}
-              <button
-                onClick={onResetData}
-                className="hidden lg:flex items-center space-x-1 px-2.5 py-1.5 rounded-lg bg-stone-50 hover:bg-stone-100 text-stone-600 hover:text-stone-900 border border-stone-200 text-xs transition-colors shadow-xs cursor-pointer"
-                title="Reset to default demo data"
+            {/* Dark Glass Role Switcher */}
+            <div className="flex items-center bg-white/[0.04] border border-white/10 rounded-full px-2.5 py-1 text-xs shadow-xs">
+              <Shield className="w-3 h-3 text-[#06B6D4] mr-1.5" />
+              <select
+                aria-label="Active User Role"
+                value={currentRole}
+                onChange={(e) => onRoleChange(e.target.value as UserRole)}
+                className="bg-transparent text-neutral-300 text-xs font-mono tracking-tight focus:outline-none cursor-pointer pr-1"
               >
-                <RotateCcw className="w-3.5 h-3.5 text-stone-400" />
-                <span>Reset</span>
-              </button>
+                {ROLES.map((role) => (
+                  <option key={role} value={role} className="bg-[#0a0a0a] text-neutral-200">
+                    {role}
+                  </option>
+                ))}
+              </select>
             </div>
+
+            {/* Reset button (Desktop) */}
+            <button
+              onClick={onResetData}
+              className="hidden xl:flex items-center space-x-1 p-2 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 text-neutral-400 hover:text-white transition-colors cursor-pointer"
+              title="Reset factory demo records"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       </header>
 
-      {/* NATIVE APP MOBILE BOTTOM NAVIGATION BAR */}
-      <nav aria-label="Mobile Navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200 pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-2px_10px_rgba(0,0,0,0.04)]">
-        <div className="grid grid-cols-5 h-15">
-          <button
-            onClick={() => onTabChange('synapse')}
-            className={`flex flex-col items-center justify-center space-y-1 transition-all duration-100 active:scale-95 cursor-pointer ${
-              activeTab === 'synapse'
-                ? 'text-stone-950 font-bold'
-                : 'text-stone-500 hover:text-stone-800'
-            }`}
-          >
-            <div className={`p-1 rounded-md transition-colors ${activeTab === 'synapse' ? 'bg-stone-900 text-white' : ''}`}>
-              <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-[#8B5CF6] to-[#06B6D4] mx-auto" />
-            </div>
-            <span className="text-[10px] tracking-tight">Synapse</span>
-          </button>
-
+      {/* SYNAPSE MOBILE FLOATING BOTTOM NAVIGATION PILL */}
+      <nav aria-label="Mobile Navigation" className="lg:hidden fixed bottom-4 left-4 right-4 z-40 pb-[env(safe-area-inset-bottom,0px)]">
+        <div className="max-w-md mx-auto grid grid-cols-4 h-14 rounded-full glass-panel border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.8)] backdrop-blur-2xl px-2">
           <button
             onClick={() => onTabChange('tracker')}
-            className={`flex flex-col items-center justify-center space-y-1 transition-all duration-100 active:scale-95 cursor-pointer ${
+            className={`flex flex-col items-center justify-center space-y-1 transition-all transition-snappy cursor-pointer ${
               activeTab === 'tracker'
-                ? 'text-indigo-700 font-bold'
-                : 'text-stone-500 hover:text-stone-800'
+                ? 'text-[#06B6D4] font-bold'
+                : 'text-neutral-400 hover:text-white'
             }`}
           >
-            <div className={`p-1 rounded-md transition-colors ${activeTab === 'tracker' ? 'bg-indigo-50 text-indigo-700' : ''}`}>
-              <Scissors className="w-4 h-4 transform -rotate-45" />
+            <div className={`p-1 rounded-full ${activeTab === 'tracker' ? 'bg-[#06B6D4]/15 shadow-[0_0_10px_rgba(6,182,212,0.4)]' : ''}`}>
+              <Scissors className="w-3.5 h-3.5 transform -rotate-45" />
             </div>
-            <span className="text-[10px] tracking-tight">Tracker</span>
+            <span className="text-[9px] font-mono uppercase tracking-wider">Tracker</span>
           </button>
 
           <button
             onClick={() => onTabChange('dashboard')}
-            className={`flex flex-col items-center justify-center space-y-1 transition-all duration-100 active:scale-95 cursor-pointer ${
+            className={`flex flex-col items-center justify-center space-y-1 transition-all transition-snappy cursor-pointer ${
               activeTab === 'dashboard'
-                ? 'text-indigo-700 font-bold'
-                : 'text-stone-500 hover:text-stone-800'
+                ? 'text-[#8B5CF6] font-bold'
+                : 'text-neutral-400 hover:text-white'
             }`}
           >
-            <div className={`p-1 rounded-md transition-colors ${activeTab === 'dashboard' ? 'bg-indigo-50 text-indigo-700' : ''}`}>
-              <BarChart3 className="w-4 h-4" />
+            <div className={`p-1 rounded-full ${activeTab === 'dashboard' ? 'bg-[#8B5CF6]/15 shadow-[0_0_10px_rgba(139,92,246,0.4)]' : ''}`}>
+              <BarChart3 className="w-3.5 h-3.5" />
             </div>
-            <span className="text-[10px] tracking-tight">Dashboard</span>
+            <span className="text-[9px] font-mono uppercase tracking-wider">Dashboard</span>
           </button>
 
           <button
             onClick={() => onTabChange('reports')}
-            className={`flex flex-col items-center justify-center space-y-1 transition-all duration-100 active:scale-95 cursor-pointer ${
+            className={`flex flex-col items-center justify-center space-y-1 transition-all transition-snappy cursor-pointer ${
               activeTab === 'reports'
-                ? 'text-indigo-700 font-bold'
-                : 'text-stone-500 hover:text-stone-800'
+                ? 'text-[#10B981] font-bold'
+                : 'text-neutral-400 hover:text-white'
             }`}
           >
-            <div className={`p-1 rounded-md transition-colors ${activeTab === 'reports' ? 'bg-indigo-50 text-indigo-700' : ''}`}>
-              <FileText className="w-4 h-4" />
+            <div className={`p-1 rounded-full ${activeTab === 'reports' ? 'bg-[#10B981]/15 shadow-[0_0_10px_rgba(16,185,129,0.4)]' : ''}`}>
+              <FileText className="w-3.5 h-3.5" />
             </div>
-            <span className="text-[10px] tracking-tight">Reports</span>
+            <span className="text-[9px] font-mono uppercase tracking-wider">Reports</span>
           </button>
 
           <button
             onClick={() => onTabChange('master')}
-            className={`flex flex-col items-center justify-center space-y-1 transition-all duration-100 active:scale-95 cursor-pointer ${
+            className={`flex flex-col items-center justify-center space-y-1 transition-all transition-snappy cursor-pointer ${
               activeTab === 'master'
-                ? 'text-indigo-700 font-bold'
-                : 'text-stone-500 hover:text-stone-800'
+                ? 'text-white font-bold'
+                : 'text-neutral-400 hover:text-white'
             }`}
           >
-            <div className={`p-1 rounded-md transition-colors ${activeTab === 'master' ? 'bg-indigo-50 text-indigo-700' : ''}`}>
-              <Package className="w-4 h-4" />
+            <div className={`p-1 rounded-full ${activeTab === 'master' ? 'bg-white/15' : ''}`}>
+              <Package className="w-3.5 h-3.5" />
             </div>
-            <span className="text-[10px] tracking-tight">Batches</span>
+            <span className="text-[9px] font-mono uppercase tracking-wider">Batches</span>
           </button>
         </div>
       </nav>

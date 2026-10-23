@@ -121,34 +121,36 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Header & Scope Controls */}
-      <div className="bg-white border border-stone-200 rounded-xl p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
+      <div className="rounded-3xl glass-panel border border-white/10 p-5 sm:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-5">
           <div>
-            <div className="flex items-center gap-2">
-              <FileText className="w-5 h-5 text-indigo-700" />
-              <h2 className="text-base font-bold text-stone-900">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-[#8B5CF6]/15 border border-[#8B5CF6]/30 text-[#8B5CF6] flex items-center justify-center">
+                <FileText className="w-4 h-4" />
+              </div>
+              <h2 className="font-serif-instrument text-2xl sm:text-3xl text-white">
                 Production Loss & Audit Reports
               </h2>
             </div>
-            <p className="text-xs text-stone-500 mt-0.5">
+            <p className="text-xs font-mono text-neutral-400 mt-1">
               Auditing stage handoffs, missing explanations, and operator accountability for{' '}
-              <strong className="text-stone-900">
+              <strong className="text-white">
                 {reportScope === 'selected' && activeBatch ? `${activeBatch.batch_no} (${activeBatch.product_name})` : 'All Batches'}
               </strong>
             </p>
           </div>
 
           {/* Scope Switcher & Print */}
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2.5 font-mono">
             {/* Toggle: Selected Batch vs All Batches */}
-            <div className="bg-stone-100 p-1 rounded-lg border border-stone-200 flex items-center">
+            <div className="bg-white/[0.03] p-1 rounded-xl border border-white/10 flex items-center">
               <button
                 type="button"
                 onClick={() => setReportScope('selected')}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all transition-snappy cursor-pointer ${
                   reportScope === 'selected'
-                    ? 'bg-white text-stone-900 shadow-xs'
-                    : 'text-stone-600 hover:text-stone-900'
+                    ? 'bg-white text-black font-bold shadow-xs'
+                    : 'text-neutral-400 hover:text-white'
                 }`}
               >
                 Selected Batch
@@ -156,10 +158,10 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
               <button
                 type="button"
                 onClick={() => setReportScope('all')}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all transition-snappy cursor-pointer ${
                   reportScope === 'all'
-                    ? 'bg-white text-stone-900 shadow-xs'
-                    : 'text-stone-600 hover:text-stone-900'
+                    ? 'bg-white text-black font-bold shadow-xs'
+                    : 'text-neutral-400 hover:text-white'
                 }`}
               >
                 All Batches
@@ -172,10 +174,10 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
                 aria-label="Select Batch for Audit Report"
                 value={selectedBatchNo}
                 onChange={(e) => onSelectBatch(e.target.value)}
-                className="bg-stone-50 hover:bg-stone-100 text-stone-900 font-semibold text-xs rounded-lg border border-stone-300 px-3 py-1.5 focus:border-indigo-600 focus:outline-none cursor-pointer"
+                className="bg-[#0a0a0a] text-white font-semibold text-xs rounded-xl border border-white/15 px-3 py-1.5 focus:border-[#8B5CF6] focus:outline-none cursor-pointer"
               >
                 {batches.map((b) => (
-                  <option key={b.batch_no} value={b.batch_no} className="bg-white text-stone-900">
+                  <option key={b.batch_no} value={b.batch_no} className="bg-[#080808] text-white">
                     {b.batch_no} — {b.product_name}
                   </option>
                 ))}
@@ -184,9 +186,9 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
 
             <button
               onClick={() => window.print()}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-stone-50 text-stone-700 text-xs font-semibold border border-stone-200 transition-colors shadow-xs cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-neutral-300 text-xs font-semibold border border-white/10 transition-colors cursor-pointer"
             >
-              <Printer className="w-3.5 h-3.5 text-stone-500" />
+              <Printer className="w-3.5 h-3.5 text-neutral-400" />
               <span>Print / PDF</span>
             </button>
           </div>
@@ -194,44 +196,44 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
 
         {/* Selected Batch Scope Info Banner */}
         {reportScope === 'selected' && activeBatch && activeBatchMetrics && (
-          <div className="mb-4 bg-stone-50 border border-stone-200 rounded-lg p-3 flex flex-wrap items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2">
-              <span className="font-mono font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
+          <div className="mb-5 bg-white/[0.02] border border-white/10 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+            <div className="flex items-center gap-2.5">
+              <span className="font-bold text-[#8B5CF6] bg-[#8B5CF6]/15 px-2.5 py-0.5 rounded-lg border border-[#8B5CF6]/30">
                 {activeBatch.batch_no}
               </span>
-              <span className="text-stone-900 font-semibold">{activeBatch.product_name}</span>
-              <span className="text-stone-500">({activeBatch.color} / {activeBatch.size})</span>
+              <span className="text-white font-semibold">{activeBatch.product_name}</span>
+              <span className="text-neutral-500">({activeBatch.color} / {activeBatch.size})</span>
             </div>
 
-            <div className="flex items-center gap-4 text-xs">
+            <div className="flex items-center gap-5 text-xs">
               <div>
-                <span className="text-stone-500">Planned:</span>{' '}
-                <strong className="text-stone-900">{activeBatch.total_planned_qty} pcs</strong>
+                <span className="text-neutral-500">Planned:</span>{' '}
+                <strong className="text-white">{activeBatch.total_planned_qty} pcs</strong>
               </div>
               <div>
-                <span className="text-stone-500">Output:</span>{' '}
-                <strong className="text-emerald-700">{activeBatchMetrics.finalPassedOutput} pcs</strong>
+                <span className="text-neutral-500">Output:</span>{' '}
+                <strong className="text-[#10B981]">{activeBatchMetrics.finalPassedOutput} pcs</strong>
               </div>
               <div>
-                <span className="text-stone-500">Defects:</span>{' '}
-                <strong className="text-amber-700">{activeBatchMetrics.totalRejected}</strong>
+                <span className="text-neutral-500">Defects:</span>{' '}
+                <strong className="text-[#F59E0B]">{activeBatchMetrics.totalRejected}</strong>
               </div>
               <div>
-                <span className="text-stone-500">Missing:</span>{' '}
-                <strong className={activeBatchMetrics.totalMissing > 0 ? 'text-rose-700' : 'text-stone-400'}>
+                <span className="text-neutral-500">Missing:</span>{' '}
+                <strong className={activeBatchMetrics.totalMissing > 0 ? 'text-[#F43F5E]' : 'text-neutral-500'}>
                   {activeBatchMetrics.totalMissing}
                 </strong>
               </div>
               <div>
-                <span className="text-stone-500">Yield:</span>{' '}
-                <strong className="text-indigo-700">{activeBatchMetrics.efficiency}%</strong>
+                <span className="text-neutral-500">Yield:</span>{' '}
+                <strong className="text-[#06B6D4]">{activeBatchMetrics.efficiency}%</strong>
               </div>
             </div>
           </div>
         )}
 
         {/* Report Selector Pills */}
-        <div className="flex flex-wrap gap-2 pt-2 border-t border-stone-200">
+        <div className="flex flex-wrap gap-2 pt-3 border-t border-white/10 font-mono">
           {[
             { id: 'progress', label: '1. Batch Progress', icon: Layers },
             { id: 'missing', label: '2. Missing Pieces Log', icon: AlertTriangle },
@@ -246,10 +248,10 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
               <button
                 key={item.id}
                 onClick={() => setActiveReport(item.id as ReportType)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all transition-snappy cursor-pointer ${
                   isActive
-                    ? 'bg-indigo-700 text-white shadow-xs'
-                    : 'bg-stone-50 hover:bg-stone-100 text-stone-700 border border-stone-200'
+                    ? 'bg-[#8B5CF6] text-white shadow-[0_0_15px_rgba(139,92,246,0.35)] font-bold'
+                    : 'bg-white/[0.02] hover:bg-white/[0.05] text-neutral-400 hover:text-white border border-white/10'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />

@@ -281,22 +281,22 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
   return (
     <div className="space-y-6">
       {/* 5-Stage Stepper Navigation */}
-      <div className="bg-white border border-stone-200 rounded-xl p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-        <div className="flex items-center justify-between mb-4">
+      <div className="rounded-3xl glass-panel border border-white/10 p-5 sm:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
           <div>
-            <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
+            <h2 className="font-serif-instrument text-2xl sm:text-3xl text-white tracking-tight flex items-center gap-2">
               <span>Production Pipeline Stages</span>
-              <span className="text-xs font-normal text-stone-500">
-                (Click any completed stage to inspect locked audit trail)
-              </span>
             </h2>
+            <p className="text-xs font-mono text-neutral-400 mt-0.5">
+              Select any stage to inspect locked audit trail or enter live workstation output
+            </p>
           </div>
-          <span className="text-xs font-medium px-2.5 py-1 rounded-md bg-stone-100 text-stone-700 border border-stone-200">
-            Batch: {batch.batch_no}
+          <span className="self-start sm:self-auto text-xs font-mono px-3 py-1 rounded-full bg-white/[0.04] text-[#06B6D4] border border-[#06B6D4]/30">
+            BATCH: {batch.batch_no}
           </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 sm:gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           {STAGES_LIST.map((stage, idx) => {
             const stageRec = activeBatchRecords.find((r) => r.stage_name === stage);
             const isDone = !!stageRec;
@@ -307,51 +307,51 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
               <button
                 key={stage}
                 onClick={() => setSelectedStage(stage)}
-                className={`relative flex flex-col p-3 rounded-lg border text-left transition-all duration-150 cursor-pointer ${
+                className={`relative flex flex-col p-3.5 rounded-2xl border text-left transition-all transition-snappy cursor-pointer ${
                   idx === 4 ? 'col-span-2 sm:col-span-1' : ''
                 } ${
                   isSelected
-                    ? 'border-indigo-600 bg-indigo-50/50 ring-1 ring-indigo-600/30 shadow-xs'
+                    ? 'border-[#8B5CF6] bg-[#8B5CF6]/15 ring-1 ring-[#8B5CF6]/50 shadow-[0_0_20px_rgba(139,92,246,0.35)] -translate-y-1'
                     : isDone
-                    ? 'border-emerald-200 bg-emerald-50/30 hover:bg-emerald-50/60 text-stone-800'
+                    ? 'border-[#10B981]/30 bg-[#10B981]/5 hover:bg-[#10B981]/10 text-neutral-200'
                     : isCurrent
-                    ? 'border-amber-300 bg-amber-50/40 hover:bg-amber-50/70 text-stone-900'
-                    : 'border-stone-200 bg-stone-50/50 hover:bg-stone-100 text-stone-500'
+                    ? 'border-[#06B6D4]/40 bg-[#06B6D4]/10 hover:bg-[#06B6D4]/15 text-white'
+                    : 'border-white/5 bg-white/[0.015] hover:bg-white/[0.04] text-neutral-500'
                 }`}
               >
-                <div className="flex items-center justify-between w-full mb-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
+                <div className="flex items-center justify-between w-full mb-1.5">
+                  <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-neutral-500">
                     Stage {idx + 1}
                   </span>
                   {isDone ? (
-                    <span className="flex items-center gap-0.5 text-[10px] font-bold text-emerald-700 bg-emerald-100/70 px-1.5 py-0.5 rounded">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Done
+                    <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-[#10B981] bg-[#10B981]/15 px-2 py-0.5 rounded-full border border-[#10B981]/30">
+                      <CheckCircle2 className="w-3 h-3" /> Done
                     </span>
                   ) : isCurrent ? (
-                    <span className="flex items-center gap-0.5 text-[10px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded">
-                      <Clock className="w-3 h-3 text-amber-600" /> Active
+                    <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-[#06B6D4] bg-[#06B6D4]/15 px-2 py-0.5 rounded-full border border-[#06B6D4]/30 animate-pulse">
+                      <Clock className="w-3 h-3" /> Active
                     </span>
                   ) : (
-                    <span className="text-[10px] text-stone-400">
+                    <span className="text-[10px] text-neutral-600">
                       <Lock className="w-3 h-3" />
                     </span>
                   )}
                 </div>
 
-                <div className="flex items-center gap-2 mt-1">
-                  <div className={`p-1.5 rounded-md ${
-                    isSelected ? 'bg-indigo-700 text-white' : isDone ? 'bg-emerald-100 text-emerald-800' : 'bg-stone-200/80 text-stone-600'
+                <div className="flex items-center gap-2.5 mt-1">
+                  <div className={`p-2 rounded-xl ${
+                    isSelected ? 'bg-[#8B5CF6] text-white shadow-[0_0_12px_rgba(139,92,246,0.5)]' : isDone ? 'bg-[#10B981]/20 text-[#10B981]' : 'bg-white/5 text-neutral-400'
                   }`}>
                     {STAGE_ICONS[stage]}
                   </div>
                   <div>
-                    <h3 className="text-xs sm:text-sm font-bold text-stone-900">{stage}</h3>
+                    <h3 className="text-sm font-semibold text-white">{stage}</h3>
                     {stageRec ? (
-                      <p className="text-[11px] text-emerald-700 font-semibold">
+                      <p className="text-[11px] font-mono text-[#10B981]">
                         Out: {stageRec.qty_passed} pcs
                       </p>
                     ) : (
-                      <p className="text-[11px] text-stone-500">
+                      <p className="text-[11px] font-mono text-neutral-500">
                         {isCurrent ? 'Ready for Entry' : 'Pending'}
                       </p>
                     )}
@@ -359,12 +359,12 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
                 </div>
 
                 {stageRec && (stageRec.qty_rejected > 0 || stageRec.qty_missing > 0 || (stageRec.qty_surplus && stageRec.qty_surplus > 0)) && (
-                  <div className="mt-2 pt-1 border-t border-stone-200/60 flex items-center justify-between text-[10px]">
-                    <span className="text-amber-700">Defect: -{stageRec.qty_rejected}</span>
+                  <div className="mt-2.5 pt-1.5 border-t border-white/5 flex items-center justify-between text-[10px] font-mono">
+                    <span className="text-[#F59E0B]">Def: -{stageRec.qty_rejected}</span>
                     {stageRec.qty_surplus ? (
-                      <span className="text-cyan-700 font-bold">Surplus: +{stageRec.qty_surplus}</span>
+                      <span className="text-[#06B6D4] font-bold">+{stageRec.qty_surplus} sur</span>
                     ) : (
-                      <span className="text-rose-700 font-semibold">Missing: -{stageRec.qty_missing}</span>
+                      <span className="text-[#F43F5E] font-semibold">-{stageRec.qty_missing} mis</span>
                     )}
                   </div>
                 )}
@@ -377,82 +377,82 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
       {/* Main Content Area */}
       {isStageCompleted && existingRecord ? (
         /* READ-ONLY IMMUTABLE AUDIT LOG */
-        <div className="bg-white border border-emerald-200 rounded-xl p-6 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+        <div className="glass-panel border border-[#10B981]/30 rounded-3xl p-6 sm:p-8 relative overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+          <div className="absolute top-0 right-0 p-5">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-mono font-semibold bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+              <ShieldCheck className="w-4 h-4" />
               Locked Audit Record (Immutable)
             </span>
           </div>
 
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2.5 bg-emerald-50 border border-emerald-100 rounded-lg text-emerald-700">
+          <div className="flex items-center gap-3.5 mb-8">
+            <div className="p-3 bg-[#10B981]/15 border border-[#10B981]/30 rounded-2xl text-[#10B981]">
               {STAGE_ICONS[selectedStage]}
             </div>
             <div>
-              <h3 className="text-lg font-bold text-stone-900">
+              <h3 className="font-serif-instrument text-2xl sm:text-3xl font-normal text-white">
                 {selectedStage} Stage Completed Record
               </h3>
-              <p className="text-xs text-stone-500">
+              <p className="text-xs font-mono text-neutral-400 mt-0.5">
                 Logged on {new Date(existingRecord.submitted_at).toLocaleString()} by{' '}
-                <span className="text-stone-800 font-semibold">{existingRecord.operator_name}</span>
+                <span className="text-[#06B6D4] font-semibold">{existingRecord.operator_name}</span>
               </p>
             </div>
           </div>
 
           {/* Metric cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mb-6">
-            <div className="bg-stone-50 p-4 rounded-lg border border-stone-200">
-              <span className="text-xs text-stone-500 block mb-1">Pieces Received (IN)</span>
-              <span className="text-2xl font-bold text-stone-900">{existingRecord.qty_received}</span>
-              <span className="text-[11px] text-stone-500 block mt-0.5">From previous stage</span>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            <div className="bg-white/[0.02] p-4 rounded-2xl border border-white/10">
+              <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-neutral-400 block mb-1">Pieces Received</span>
+              <span className="text-3xl font-mono font-bold text-white">{existingRecord.qty_received}</span>
+              <span className="text-[10px] font-mono text-neutral-500 block mt-1">From previous stage</span>
             </div>
 
-            <div className="bg-emerald-50/50 p-4 rounded-lg border border-emerald-200">
-              <span className="text-xs text-emerald-800 font-medium block mb-1">Pieces Passed (OUT)</span>
-              <span className="text-2xl font-bold text-emerald-700">{existingRecord.qty_passed}</span>
-              <span className="text-[11px] text-emerald-700/80 block mt-0.5">Moved to next stage</span>
+            <div className="bg-[#10B981]/10 p-4 rounded-2xl border border-[#10B981]/30 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
+              <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#10B981] block mb-1">Pieces Passed (OUT)</span>
+              <span className="text-3xl font-mono font-bold text-[#10B981]">{existingRecord.qty_passed}</span>
+              <span className="text-[10px] font-mono text-[#10B981]/80 block mt-1">Advanced to next stage</span>
             </div>
 
-            <div className="bg-amber-50/50 p-4 rounded-lg border border-amber-200">
-              <span className="text-xs text-amber-800 font-medium block mb-1">Defective / Rejected</span>
-              <span className="text-2xl font-bold text-amber-700">{existingRecord.qty_rejected}</span>
-              <span className="text-[11px] text-amber-700/80 block mt-0.5">Scrapped or failed</span>
+            <div className="bg-[#F59E0B]/10 p-4 rounded-2xl border border-[#F59E0B]/30 shadow-[0_0_20px_rgba(245,158,11,0.15)]">
+              <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#F59E0B] block mb-1">Defective / Scrap</span>
+              <span className="text-3xl font-mono font-bold text-[#F59E0B]">{existingRecord.qty_rejected}</span>
+              <span className="text-[10px] font-mono text-[#F59E0B]/80 block mt-1">Failed inspection</span>
             </div>
 
-            <div className="bg-rose-50/50 p-4 rounded-lg border border-rose-200">
-              <span className="text-xs text-rose-800 font-medium block mb-1">
-                {existingRecord.qty_surplus ? 'Surplus / Excess' : 'Missing / Lost'}
+            <div className="bg-[#F43F5E]/10 p-4 rounded-2xl border border-[#F43F5E]/30 shadow-[0_0_20px_rgba(244,63,94,0.15)]">
+              <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#F43F5E] block mb-1">
+                {existingRecord.qty_surplus ? 'Surplus / Excess' : 'Missing / Shortage'}
               </span>
-              <span className={`text-2xl font-bold ${
-                existingRecord.qty_surplus ? 'text-cyan-700' : existingRecord.qty_missing > 0 ? 'text-rose-700' : 'text-stone-400'
+              <span className={`text-3xl font-mono font-bold ${
+                existingRecord.qty_surplus ? 'text-[#06B6D4]' : existingRecord.qty_missing > 0 ? 'text-[#F43F5E]' : 'text-neutral-500'
               }`}>
                 {existingRecord.qty_surplus ? `+${existingRecord.qty_surplus}` : existingRecord.qty_missing}
               </span>
-              <span className="text-[11px] text-stone-500 block mt-0.5">
-                {existingRecord.qty_surplus ? 'Reported to Admin' : existingRecord.qty_missing === 0 ? '0 pieces lost' : 'Unaccounted'}
+              <span className="text-[10px] font-mono text-neutral-400 block mt-1">
+                {existingRecord.qty_surplus ? 'Surplus recorded' : existingRecord.qty_missing === 0 ? 'Zero pieces lost' : 'Unaccounted'}
               </span>
             </div>
           </div>
 
           {/* Details */}
-          <div className="space-y-3 bg-stone-50 p-4 rounded-lg border border-stone-200 text-xs">
+          <div className="space-y-3.5 bg-white/[0.02] p-5 rounded-2xl border border-white/5 text-xs font-mono">
             {existingRecord.rejection_reason && (
               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-                <span className="font-semibold text-amber-900 min-w-[150px]">Rejection Reason:</span>
-                <span className="bg-amber-100/70 px-2.5 py-1 rounded text-amber-900 border border-amber-200">
+                <span className="font-semibold text-[#F59E0B] min-w-[150px]">Rejection Reason:</span>
+                <span className="bg-[#F59E0B]/15 px-3 py-1 rounded-lg text-[#F59E0B] border border-[#F59E0B]/30">
                   {existingRecord.rejection_reason}
                 </span>
                 {existingRecord.defect_type && (
-                  <span className="text-stone-500">({existingRecord.defect_type})</span>
+                  <span className="text-neutral-400">({existingRecord.defect_type})</span>
                 )}
               </div>
             )}
 
             {existingRecord.missing_reason && (
               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-                <span className="font-semibold text-rose-900 min-w-[150px]">Missing Explanation:</span>
-                <span className="bg-rose-100/70 px-2.5 py-1 rounded text-rose-900 border border-rose-200">
+                <span className="font-semibold text-[#F43F5E] min-w-[150px]">Missing Explanation:</span>
+                <span className="bg-[#F43F5E]/15 px-3 py-1 rounded-lg text-[#F43F5E] border border-[#F43F5E]/30">
                   {existingRecord.missing_reason}
                 </span>
               </div>
@@ -460,8 +460,8 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
 
             {existingRecord.surplus_reason && (
               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-                <span className="font-semibold text-cyan-900 min-w-[150px]">Surplus Audit Reason:</span>
-                <span className="bg-cyan-100/70 px-2.5 py-1 rounded text-cyan-900 border border-cyan-200">
+                <span className="font-semibold text-[#06B6D4] min-w-[150px]">Surplus Audit Reason:</span>
+                <span className="bg-[#06B6D4]/15 px-3 py-1 rounded-lg text-[#06B6D4] border border-[#06B6D4]/30">
                   {existingRecord.surplus_reason}
                 </span>
               </div>
@@ -469,105 +469,105 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
 
             {existingRecord.remarks && (
               <div className="flex items-start gap-3 pt-1">
-                <span className="font-semibold text-stone-600 min-w-[150px]">Remarks:</span>
-                <span className="italic text-stone-700">{existingRecord.remarks}</span>
+                <span className="font-semibold text-neutral-400 min-w-[150px]">Remarks:</span>
+                <span className="italic text-neutral-300">{existingRecord.remarks}</span>
               </div>
             )}
           </div>
         </div>
       ) : (
         /* INTERACTIVE STAGE ENTRY FORM */
-        <form onSubmit={handleSubmit} className="bg-white border border-stone-200 rounded-xl p-6 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-6 border-b border-stone-200 gap-2">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-lg">
+        <form onSubmit={handleSubmit} className="glass-panel border border-white/10 rounded-3xl p-6 sm:p-8 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 mb-6 border-b border-white/10 gap-3">
+            <div className="flex items-center gap-3.5">
+              <div className="p-3 bg-[#8B5CF6]/15 border border-[#8B5CF6]/30 text-[#8B5CF6] rounded-2xl shadow-[0_0_15px_rgba(139,92,246,0.2)]">
                 {STAGE_ICONS[selectedStage]}
               </div>
               <div>
-                <h3 className="text-lg font-bold text-stone-900 flex items-center gap-2">
+                <h3 className="font-serif-instrument text-2xl sm:text-3xl text-white flex items-center gap-2">
                   <span>Record {selectedStage} Production Stage</span>
-                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-semibold border border-indigo-200">
-                    Active Session
+                  <span className="text-[10px] font-mono uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-[#06B6D4]/15 text-[#06B6D4] font-semibold border border-[#06B6D4]/30">
+                    Active Telemetry
                   </span>
                 </h3>
-                <p className="text-xs text-stone-500">
-                  Pieces received are auto-filled from previous stage (<strong className="text-indigo-700">{prevStageInfo.stage}</strong> by <strong className="text-stone-800">{prevStageInfo.operator}</strong>).
+                <p className="text-xs font-mono text-neutral-400 mt-0.5">
+                  Input count auto-preset from previous stage (<span className="text-[#06B6D4] font-semibold">{prevStageInfo.stage}</span> by <span className="text-white font-semibold">{prevStageInfo.operator}</span>).
                 </p>
               </div>
             </div>
 
             {/* Read-Only Auto-Fed Received Banner */}
-            <div className="bg-stone-50 border border-stone-200 rounded-lg px-3.5 py-2 flex items-center gap-3">
+            <div className="bg-white/[0.03] border border-white/10 rounded-2xl px-4 py-2.5 flex items-center gap-3">
               <div>
-                <span className="text-[10px] font-semibold text-stone-500 block uppercase tracking-wider">
+                <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-neutral-400 block">
                   {selectedStage === 'Cutting' ? 'Pieces Planned (Master)' : `Auto-Received from ${prevStageInfo.stage}`}
                 </span>
-                <div className="text-lg font-bold text-indigo-700">
-                  {autoReceived} <span className="text-xs font-normal text-stone-500">pieces</span>
+                <div className="text-lg font-mono font-bold text-white">
+                  {autoReceived} <span className="text-xs font-normal text-neutral-400">pieces</span>
                 </div>
-                <span className="text-[10px] text-stone-500">
+                <span className="text-[10px] font-mono text-neutral-500">
                   Logged by: {prevStageInfo.operator}
                 </span>
               </div>
-              <Info className="w-4 h-4 text-stone-400" />
+              <Info className="w-4 h-4 text-neutral-500" />
             </div>
           </div>
 
           {/* LIVE METRIC BAR */}
-          <div className="mb-6 grid grid-cols-2 sm:grid-cols-4 gap-3 bg-stone-50 p-3 rounded-lg border border-stone-200">
-            <div className="p-2.5 rounded-md bg-white border border-stone-200/80 shadow-xs">
-              <span className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider block">
+          <div className="mb-8 grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white/[0.02] p-3 rounded-2xl border border-white/5">
+            <div className="p-3 rounded-xl bg-white/[0.02] border border-white/10">
+              <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-neutral-400 block mb-1">
                 Qty Received
               </span>
-              <span className="text-xl font-bold text-stone-900">{autoReceived}</span>
-              <span className="text-[10px] text-stone-500 block truncate">From {prevStageInfo.operator}</span>
+              <span className="text-2xl font-mono font-bold text-white">{autoReceived}</span>
+              <span className="text-[10px] font-mono text-neutral-500 block truncate mt-0.5">From {prevStageInfo.operator}</span>
             </div>
 
-            <div className="p-2.5 rounded-md bg-emerald-50/60 border border-emerald-200">
-              <span className="text-[10px] font-semibold text-emerald-800 uppercase tracking-wider block">
+            <div className="p-3 rounded-xl bg-[#10B981]/10 border border-[#10B981]/30 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+              <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-[#10B981] block mb-1">
                 Qty Passed (OK)
               </span>
-              <span className="text-xl font-bold text-emerald-700">{numPassed || 0}</span>
-              <span className="text-[10px] text-emerald-700/80 block">Completed OK</span>
+              <span className="text-2xl font-mono font-bold text-[#10B981]">{numPassed || 0}</span>
+              <span className="text-[10px] font-mono text-[#10B981]/80 block mt-0.5">Completed OK</span>
             </div>
 
-            <div className="p-2.5 rounded-md bg-amber-50/60 border border-amber-200">
-              <span className="text-[10px] font-semibold text-amber-800 uppercase tracking-wider block">
+            <div className="p-3 rounded-xl bg-[#F59E0B]/10 border border-[#F59E0B]/30 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
+              <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-[#F59E0B] block mb-1">
                 Qty Defective
               </span>
-              <span className="text-xl font-bold text-amber-700">{numRejected || 0}</span>
-              <span className="text-[10px] text-amber-700/80 block">Failed / scrap</span>
+              <span className="text-2xl font-mono font-bold text-[#F59E0B]">{numRejected || 0}</span>
+              <span className="text-[10px] font-mono text-[#F59E0B]/80 block mt-0.5">Failed / scrap</span>
             </div>
 
             {/* DYNAMIC 4TH BOX: SHOWS SURPLUS (EXCESS) OR MISSING (SHORTAGE) */}
             {liveSurplus > 0 ? (
-              <div className="p-2.5 rounded-md border bg-cyan-50 border-cyan-300 text-cyan-900">
+              <div className="p-3 rounded-xl bg-[#06B6D4]/15 border border-[#06B6D4]/35 text-[#06B6D4] shadow-[0_0_15px_rgba(6,182,212,0.2)]">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider block text-cyan-800">
-                    Qty Surplus (Excess)
+                  <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-[#06B6D4] block font-bold">
+                    Qty Surplus
                   </span>
-                  <AlertTriangle className="w-3.5 h-3.5 text-cyan-700" />
+                  <AlertTriangle className="w-3.5 h-3.5 text-[#06B6D4]" />
                 </div>
-                <span className="text-xl font-extrabold text-cyan-800">+{liveSurplus} pcs</span>
-                <span className="text-[10px] text-cyan-700 block">Exceeds received count!</span>
+                <span className="text-2xl font-mono font-bold text-white">+{liveSurplus} pcs</span>
+                <span className="text-[10px] font-mono text-[#06B6D4] block mt-0.5">Exceeds received!</span>
               </div>
             ) : (
-              <div className={`p-2.5 rounded-md border transition-all ${
+              <div className={`p-3 rounded-xl border transition-all ${
                 liveMissing > 0 
-                  ? 'bg-rose-50 border-rose-300 text-rose-900' 
-                  : 'bg-white border-stone-200/80 text-stone-600'
+                  ? 'bg-[#F43F5E]/15 border-[#F43F5E]/35 text-[#F43F5E] shadow-[0_0_15px_rgba(244,63,94,0.2)]' 
+                  : 'bg-white/[0.02] border-white/10 text-neutral-400'
               }`}>
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider block">
-                    Qty Missing (Shortage)
+                  <span className="text-[9px] font-mono uppercase tracking-[0.2em] block">
+                    Qty Shortage
                   </span>
-                  {liveMissing > 0 && <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />}
+                  {liveMissing > 0 && <AlertTriangle className="w-3.5 h-3.5 text-[#F43F5E]" />}
                 </div>
-                <span className={`text-xl font-extrabold ${liveMissing > 0 ? 'text-rose-700' : 'text-stone-400'}`}>
+                <span className={`text-2xl font-mono font-bold ${liveMissing > 0 ? 'text-[#F43F5E]' : 'text-neutral-500'}`}>
                   {liveMissing > 0 ? `-${liveMissing}` : '0'}
                 </span>
-                <span className="text-[10px] text-stone-500 block">
-                  {liveMissing > 0 ? 'Shortage from previous stage' : 'Balanced count'}
+                <span className="text-[10px] font-mono text-neutral-500 block mt-0.5">
+                  {liveMissing > 0 ? 'Shortage detected' : 'Count balanced'}
                 </span>
               </div>
             )}
@@ -576,58 +576,58 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
           {/* Form Fields Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div>
-              <label className="block text-xs font-semibold text-stone-700 mb-1.5">
-                Current Operator Name <span className="text-rose-600">*</span>
+              <label className="block text-xs font-mono uppercase tracking-wider text-neutral-300 mb-2">
+                Operator Signature <span className="text-[#F43F5E]">*</span>
               </label>
               <div className="relative">
-                <User className="w-4 h-4 absolute left-3 top-2.5 text-stone-400" />
+                <User className="w-4 h-4 absolute left-3.5 top-3 text-neutral-500" />
                 <input
                   type="text"
                   required
                   value={operatorName}
                   onChange={(e) => setOperatorName(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-stone-300 rounded-lg text-base sm:text-xs text-stone-900 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 shadow-xs"
-                  placeholder="e.g. David Vance"
+                  className="w-full pl-10 pr-3 py-2.5 bg-[#0a0a0a] border border-white/15 rounded-xl text-sm font-mono text-white focus:outline-none focus:border-[#8B5CF6] focus:shadow-[0_0_15px_rgba(139,92,246,0.3)] shadow-xs"
+                  placeholder="Operator name"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-stone-700 mb-1.5">
-                Date <span className="text-rose-600">*</span>
+              <label className="block text-xs font-mono uppercase tracking-wider text-neutral-300 mb-2">
+                Entry Date <span className="text-[#F43F5E]">*</span>
               </label>
               <input
                 type="date"
                 required
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-base sm:text-xs text-stone-900 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 shadow-xs"
+                className="w-full px-3 py-2.5 bg-[#0a0a0a] border border-white/15 rounded-xl text-sm font-mono text-white focus:outline-none focus:border-[#8B5CF6] focus:shadow-[0_0_15px_rgba(139,92,246,0.3)] shadow-xs"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-stone-700 mb-1.5">
-                Time In <span className="text-rose-600">*</span>
+              <label className="block text-xs font-mono uppercase tracking-wider text-neutral-300 mb-2">
+                Time In <span className="text-[#F43F5E]">*</span>
               </label>
               <div className="relative">
-                <Clock className="w-4 h-4 absolute left-3 top-2.5 text-stone-400" />
+                <Clock className="w-4 h-4 absolute left-3.5 top-3 text-neutral-500" />
                 <input
                   type="time"
                   required
                   value={timeIn}
                   onChange={(e) => setTimeIn(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-stone-300 rounded-lg text-base sm:text-xs text-stone-900 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 shadow-xs"
+                  className="w-full pl-10 pr-3 py-2.5 bg-[#0a0a0a] border border-white/15 rounded-xl text-sm font-mono text-white focus:outline-none focus:border-[#8B5CF6] focus:shadow-[0_0_15px_rgba(139,92,246,0.3)] shadow-xs"
                 />
               </div>
             </div>
           </div>
 
           {/* Quantity Inputs */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
             {/* QTY PASSED */}
-            <div className="p-4 bg-emerald-50/40 border border-emerald-200 rounded-lg">
-              <label className="block text-xs font-bold text-emerald-900 mb-1.5">
-                Pieces Passed / Completed OK <span className="text-rose-600">*</span>
+            <div className="p-5 bg-[#10B981]/5 border border-[#10B981]/30 rounded-2xl shadow-[0_0_20px_rgba(16,185,129,0.1)]">
+              <label className="block text-xs font-mono font-bold text-[#10B981] uppercase tracking-wider mb-2">
+                Pieces Passed OK <span className="text-[#F43F5E]">*</span>
               </label>
               <input
                 type="number"
@@ -638,18 +638,18 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
                   setTouched(true);
                   setQtyPassed(e.target.value === '' ? '' : Number(e.target.value));
                 }}
-                className="w-full px-3 py-2 bg-white border border-emerald-300 rounded-lg text-lg font-bold text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
+                className="w-full px-4 py-3 bg-[#080808] border border-[#10B981]/40 rounded-xl text-2xl font-mono font-bold text-[#10B981] focus:outline-none focus:border-[#10B981] focus:shadow-[0_0_20px_rgba(16,185,129,0.3)]"
                 placeholder="0"
               />
-              <span className="text-[11px] text-emerald-700/80 mt-1 block">
-                Actual count that passed OK
+              <span className="text-[10px] font-mono text-[#10B981]/70 mt-1.5 block">
+                Garments completing stage successfully
               </span>
             </div>
 
             {/* QTY REJECTED */}
-            <div className="p-4 bg-amber-50/40 border border-amber-200 rounded-lg">
-              <label className="block text-xs font-bold text-amber-900 mb-1.5">
-                Pieces Rejected / Defective <span className="text-rose-600">*</span>
+            <div className="p-5 bg-[#F59E0B]/5 border border-[#F59E0B]/30 rounded-2xl shadow-[0_0_20px_rgba(245,158,11,0.1)]">
+              <label className="block text-xs font-mono font-bold text-[#F59E0B] uppercase tracking-wider mb-2">
+                Pieces Defective / Scrap <span className="text-[#F43F5E]">*</span>
               </label>
               <input
                 type="number"
@@ -660,18 +660,18 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
                   setTouched(true);
                   setQtyRejected(e.target.value === '' ? '' : Number(e.target.value));
                 }}
-                className="w-full px-3 py-2 bg-white border border-amber-300 rounded-lg text-lg font-bold text-amber-900 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-xs"
+                className="w-full px-4 py-3 bg-[#080808] border border-[#F59E0B]/40 rounded-xl text-2xl font-mono font-bold text-[#F59E0B] focus:outline-none focus:border-[#F59E0B] focus:shadow-[0_0_20px_rgba(245,158,11,0.3)]"
                 placeholder="0"
               />
-              <span className="text-[11px] text-amber-700/80 mt-1 block">
-                Scrapped or defective pieces
+              <span className="text-[10px] font-mono text-[#F59E0B]/70 mt-1.5 block">
+                Failed quality checks or bad cuts
               </span>
             </div>
 
             {/* QC REWORK */}
             {selectedStage === 'QC' && (
-              <div className="p-4 bg-indigo-50/40 border border-indigo-200 rounded-lg">
-                <label className="block text-xs font-bold text-indigo-900 mb-1.5">
+              <div className="p-5 bg-[#8B5CF6]/5 border border-[#8B5CF6]/30 rounded-2xl shadow-[0_0_20px_rgba(139,92,246,0.1)]">
+                <label className="block text-xs font-mono font-bold text-[#8B5CF6] uppercase tracking-wider mb-2">
                   Pieces for Rework (Fixable)
                 </label>
                 <input
@@ -682,124 +682,106 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
                     setTouched(true);
                     setQtyRework(e.target.value === '' ? '' : Number(e.target.value));
                   }}
-                  className="w-full px-3 py-2 bg-white border border-indigo-300 rounded-lg text-lg font-bold text-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-xs"
+                  className="w-full px-4 py-3 bg-[#080808] border border-[#8B5CF6]/40 rounded-xl text-2xl font-mono font-bold text-[#8B5CF6] focus:outline-none focus:border-[#8B5CF6] focus:shadow-[0_0_20px_rgba(139,92,246,0.3)]"
                   placeholder="0"
                 />
-                <span className="text-[11px] text-indigo-700/80 mt-1 block">
-                  Pieces sent back for alteration
+                <span className="text-[10px] font-mono text-[#8B5CF6]/70 mt-1.5 block">
+                  Pieces routed for alteration
                 </span>
               </div>
             )}
           </div>
 
-          {/* DISCREPANCY SECTION: SENDS REPORT MESSAGE TO ADMIN REGARDING PREVIOUS OPERATOR */}
+          {/* DISCREPANCY SECTION */}
           {hasDiscrepancy && (
-            <div className={`mb-6 p-4 rounded-xl border transition-all ${
+            <div className={`mb-8 p-6 rounded-3xl border transition-all ${
               variance > 0 
-                ? 'bg-cyan-50/70 border-cyan-300' 
-                : 'bg-rose-50/70 border-rose-300'
+                ? 'bg-[#06B6D4]/10 border-[#06B6D4]/40 shadow-[0_0_30px_rgba(6,182,212,0.15)]' 
+                : 'bg-[#F43F5E]/10 border-[#F43F5E]/40 shadow-[0_0_30px_rgba(244,63,94,0.15)]'
             }`}>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 mb-3 border-b border-stone-200/80">
-                <div className="flex items-center gap-2.5">
-                  <div className={`p-2 rounded-lg ${variance > 0 ? 'bg-cyan-100 text-cyan-800' : 'bg-rose-100 text-rose-800'}`}>
-                    <BellRing className="w-4 h-4" />
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2.5 rounded-xl ${variance > 0 ? 'bg-[#06B6D4]/20 text-[#06B6D4]' : 'bg-[#F43F5E]/20 text-[#F43F5E]'}`}>
+                    <BellRing className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-stone-900 flex items-center gap-2">
+                    <h4 className="text-sm font-mono font-bold text-white flex items-center gap-2">
                       <span>
                         {variance > 0 
-                          ? `Surplus Discrepancy: Received +${variance} pieces MORE than expected`
-                          : `Shortage Discrepancy: Received ${Math.abs(variance)} pieces LESS than expected`}
+                          ? `SURPLUS DETECTED: +${variance} PIECES EXCEED BUNDLE TALLY` 
+                          : `CRITICAL SHORTAGE: ${Math.abs(variance)} PIECES UNACCOUNTED`}
                       </span>
                     </h4>
-                    <p className="text-[11px] text-stone-600">
-                      Discrepancy regarding previous stage: <strong className="text-indigo-800">{prevStageInfo.stage}</strong> operator <strong className="text-stone-900">{prevStageInfo.operator}</strong>.
+                    <p className="text-xs font-mono text-neutral-400 mt-0.5">
+                      Target handoff from: <span className="text-[#8B5CF6] font-semibold">{prevStageInfo.stage}</span> operator <span className="text-white font-semibold">{prevStageInfo.operator}</span>.
                     </p>
                   </div>
                 </div>
 
                 {isDiscrepancyReportSent ? (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    Report Message Sent to Admin
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono font-semibold bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/40">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    Incident Dispatched to Admin
                   </span>
                 ) : (
                   <button
                     type="button"
                     onClick={handleSendReportToAdmin}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-900 hover:bg-stone-800 text-white rounded-lg text-xs font-semibold shadow-xs transition-all cursor-pointer"
+                    className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-full text-xs font-semibold shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:bg-neutral-200 transition-all cursor-pointer"
                   >
                     <Send className="w-3.5 h-3.5" />
-                    <span>Send Incident Message to Admin</span>
+                    <span>Dispatch Incident to Admin</span>
                   </button>
                 )}
               </div>
 
               {/* Comparison chips */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-3 text-xs bg-white p-3 rounded-lg border border-stone-200">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 text-xs font-mono bg-[#080808] p-4 rounded-2xl border border-white/10">
                 <div>
-                  <span className="text-stone-500 block text-[11px]">Previous Operator ({prevStageInfo.stage}):</span>
-                  <span className="font-bold text-stone-900">{prevStageInfo.operator}</span>
-                  <span className="text-stone-500 block text-[10px]">Sent: <strong>{autoReceived} pcs</strong></span>
+                  <span className="text-neutral-500 block text-[10px] uppercase">Previous Operator ({prevStageInfo.stage}):</span>
+                  <span className="font-bold text-white text-sm">{prevStageInfo.operator}</span>
+                  <span className="text-neutral-400 block text-[11px] mt-0.5">Sent: {autoReceived} pcs</span>
                 </div>
                 <div>
-                  <span className="text-stone-500 block text-[11px]">Current Operator ({selectedStage}):</span>
-                  <span className="font-bold text-indigo-700">{operatorName}</span>
-                  <span className="text-stone-500 block text-[10px]">Counted: <strong>{totalAccounted} pcs</strong></span>
+                  <span className="text-neutral-500 block text-[10px] uppercase">Current Operator ({selectedStage}):</span>
+                  <span className="font-bold text-[#8B5CF6] text-sm">{operatorName}</span>
+                  <span className="text-neutral-400 block text-[11px] mt-0.5">Counted: {totalAccounted} pcs</span>
                 </div>
                 <div>
-                  <span className="text-stone-500 block text-[11px]">Net Handoff Variance:</span>
-                  <span className={`font-extrabold text-xs ${variance > 0 ? 'text-cyan-800' : 'text-rose-700'}`}>
-                    {variance > 0 ? `+${variance} pieces (SURPLUS)` : `${variance} pieces (SHORTAGE)`}
+                  <span className="text-neutral-500 block text-[10px] uppercase">Net Discrepancy Variance:</span>
+                  <span className={`font-bold text-sm ${variance > 0 ? 'text-[#06B6D4]' : 'text-[#F43F5E]'}`}>
+                    {variance > 0 ? `+${variance} pcs (SURPLUS)` : `${variance} pcs (SHORTAGE)`}
                   </span>
                 </div>
               </div>
 
               {/* Message */}
               <div className="space-y-2">
-                <label className="block text-xs font-semibold text-stone-700">
-                  Incident Report Message to Factory Admin:
+                <label className="block text-xs font-mono uppercase tracking-wider text-neutral-300">
+                  Incident Reason & Root Cause Details:
                 </label>
                 <textarea
                   rows={2}
                   value={discrepancyMessage}
                   onChange={(e) => setDiscrepancyMessage(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs text-stone-900 focus:outline-none focus:border-indigo-600 font-mono shadow-xs"
+                  className="w-full px-4 py-2.5 bg-[#080808] border border-white/15 rounded-xl text-xs font-mono text-white focus:outline-none focus:border-[#8B5CF6]"
                 />
-
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 text-xs">
-                  <label className="flex items-center gap-2 cursor-pointer text-stone-700">
-                    <input
-                      type="checkbox"
-                      checked={autoFileDiscrepancy}
-                      onChange={(e) => setAutoFileDiscrepancy(e.target.checked)}
-                      className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                    />
-                    <span>Automatically log this Incident in Admin Inbox upon completing stage</span>
-                  </label>
-
-                  {variance > 0 && (
-                    <span className="text-[11px] text-cyan-800 bg-cyan-100 px-2 py-0.5 rounded font-medium">
-                      Surplus logged in batch audit
-                    </span>
-                  )}
-                </div>
               </div>
             </div>
           )}
 
           {/* Defect Reasons */}
           {numRejected > 0 && (
-            <div className="mb-6 p-4 rounded-lg bg-amber-50/60 border border-amber-200">
-              <div className="flex items-center gap-2 text-amber-900 font-bold text-xs mb-2">
-                <AlertCircle className="w-4 h-4 text-amber-700" />
-                <span>Defects Detected ({numRejected} pieces) — Rejection Reason Required</span>
+            <div className="mb-8 p-6 rounded-2xl bg-[#F59E0B]/10 border border-[#F59E0B]/30 shadow-[0_0_20px_rgba(245,158,11,0.1)]">
+              <div className="flex items-center gap-2 text-[#F59E0B] font-mono font-bold text-xs mb-3">
+                <AlertCircle className="w-4 h-4" />
+                <span>DEFECT CLASSIFICATION MANDATORY ({numRejected} PIECES FAILED)</span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    Select Defect Type <span className="text-rose-600">*</span>
+                  <label className="block text-xs font-mono uppercase tracking-wider text-neutral-300 mb-1.5">
+                    Defect Classification <span className="text-[#F43F5E]">*</span>
                   </label>
                   <select
                     value={defectType}
@@ -807,11 +789,11 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
                       setDefectType(e.target.value);
                       if (!rejectionReason) setRejectionReason(e.target.value);
                     }}
-                    className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs text-stone-900 focus:outline-none focus:border-indigo-600 cursor-pointer shadow-xs"
+                    className="w-full px-3.5 py-2.5 bg-[#080808] border border-white/15 rounded-xl text-xs font-mono text-white focus:outline-none focus:border-[#8B5CF6] cursor-pointer"
                   >
                     <option value="">-- Choose defect classification --</option>
                     {DEFECT_OPTIONS[selectedStage]?.map((opt) => (
-                      <option key={opt} value={opt}>
+                      <option key={opt} value={opt} className="bg-[#080808] text-white">
                         {opt}
                       </option>
                     ))}
@@ -819,8 +801,8 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    Detailed Rejection Reason <span className="text-rose-600">*</span>
+                  <label className="block text-xs font-mono uppercase tracking-wider text-neutral-300 mb-1.5">
+                    Detailed Rejection Reason <span className="text-[#F43F5E]">*</span>
                   </label>
                   <input
                     type="text"
@@ -828,7 +810,7 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
                     value={rejectionReason}
                     onChange={(e) => setRejectionReason(e.target.value)}
                     placeholder="Specific defect explanation (e.g. Iron burn on placket)"
-                    className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs text-stone-900 focus:outline-none focus:border-indigo-600 shadow-xs"
+                    className="w-full px-3.5 py-2.5 bg-[#080808] border border-white/15 rounded-xl text-xs font-mono text-white focus:outline-none focus:border-[#8B5CF6]"
                   />
                 </div>
               </div>
@@ -837,10 +819,10 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
 
           {/* Missing Explanation */}
           {liveMissing > 0 && (
-            <div className="mb-6 p-4 rounded-lg bg-rose-50/60 border border-rose-200">
-              <div className="flex items-center gap-2 text-rose-900 font-bold text-xs mb-2">
-                <AlertTriangle className="w-4 h-4 text-rose-600" />
-                <span>{liveMissing} pieces unaccounted for — Explanation Required</span>
+            <div className="mb-8 p-6 rounded-2xl bg-[#F43F5E]/10 border border-[#F43F5E]/30 shadow-[0_0_20px_rgba(244,63,94,0.1)]">
+              <div className="flex items-center gap-2 text-[#F43F5E] font-mono font-bold text-xs mb-3">
+                <AlertTriangle className="w-4 h-4" />
+                <span>{liveMissing} PIECES UNACCOUNTED — MANDATORY INCIDENT REASON</span>
               </div>
 
               <div>
@@ -850,17 +832,17 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
                   value={missingReason}
                   onChange={(e) => setMissingReason(e.target.value)}
                   placeholder="Where did the missing pieces go? (e.g. Dropped behind table, bundle tally mismatch)"
-                  className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-xs text-stone-900 focus:outline-none focus:border-rose-600 shadow-xs"
+                  className="w-full px-4 py-2.5 bg-[#080808] border border-white/15 rounded-xl text-xs font-mono text-white focus:outline-none focus:border-[#F43F5E]"
                 />
 
-                <div className="mt-2 flex flex-wrap gap-1.5 items-center">
-                  <span className="text-[11px] text-stone-500">Suggestions:</span>
+                <div className="mt-3 flex flex-wrap gap-2 items-center">
+                  <span className="text-[10px] font-mono text-neutral-400">Suggestions:</span>
                   {MISSING_REASONS_SUGGESTIONS.slice(0, 4).map((suggestion) => (
                     <button
                       key={suggestion}
                       type="button"
                       onClick={() => setMissingReason(suggestion)}
-                      className="text-[11px] px-2 py-0.5 rounded bg-white hover:bg-stone-100 border border-stone-200 text-stone-700 cursor-pointer shadow-xs"
+                      className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/[0.1] border border-white/10 text-neutral-300 cursor-pointer"
                     >
                       {suggestion}
                     </button>
@@ -872,21 +854,21 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
 
           {/* PACKING BREAKDOWN */}
           {selectedStage === 'Packing' && (
-            <div className="mb-6 p-4 rounded-lg bg-indigo-50/50 border border-indigo-200">
-              <div className="flex items-center justify-between mb-2.5">
-                <h4 className="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
-                  <Package className="w-4 h-4 text-indigo-700" />
+            <div className="mb-8 p-6 rounded-2xl bg-white/[0.02] border border-white/10">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-xs font-mono font-bold text-white flex items-center gap-2">
+                  <Package className="w-4 h-4 text-[#8B5CF6]" />
                   Final Packed Qty by Size Breakdown (Mandatory at Packing)
                 </h4>
-                <span className="text-xs text-stone-500">
-                  Total Allocated: <strong className="text-stone-900">{Object.values(sizeBreakdown).reduce((a, b) => a + b, 0)}</strong> / {numPassed || 0} pcs
+                <span className="text-xs font-mono text-neutral-400">
+                  Allocated: <strong className="text-[#06B6D4]">{Object.values(sizeBreakdown).reduce((a, b) => a + b, 0)}</strong> / {numPassed || 0} pcs
                 </span>
               </div>
 
-              <div className="grid grid-cols-5 gap-2">
+              <div className="grid grid-cols-5 gap-2.5">
                 {['S', 'M', 'L', 'XL', 'XXL'].map((sz) => (
-                  <div key={sz} className="bg-white p-2 rounded-lg border border-stone-200 shadow-xs">
-                    <label className="block text-[11px] font-bold text-stone-500 text-center mb-1">
+                  <div key={sz} className="bg-[#080808] p-2.5 rounded-xl border border-white/10 text-center">
+                    <label className="block text-[10px] font-mono uppercase tracking-wider text-neutral-400 mb-1">
                       Size {sz}
                     </label>
                     <input
@@ -899,7 +881,7 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
                           [sz]: Math.max(0, Number(e.target.value) || 0)
                         })
                       }
-                      className="w-full text-center py-1 bg-stone-50 border border-stone-200 rounded text-xs font-bold text-indigo-900 focus:outline-none focus:bg-white"
+                      className="w-full text-center py-1.5 bg-transparent border border-white/15 rounded text-sm font-mono font-bold text-white focus:outline-none focus:border-[#8B5CF6]"
                     />
                   </div>
                 ))}
@@ -909,33 +891,31 @@ export const ModuleStageTracker: React.FC<ModuleStageTrackerProps> = ({
 
           {/* Errors Box */}
           {validationErrors.length > 0 && (
-            <div className="mb-6 p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs space-y-1">
-              <div className="font-bold flex items-center gap-1.5 text-rose-900">
-                <AlertCircle className="w-4 h-4 text-rose-600" />
-                <span>Cannot Save Stage — Resolve the following:</span>
+            <div className="mb-6 p-4 rounded-2xl bg-[#F43F5E]/15 border border-[#F43F5E]/40 text-[#F43F5E] text-xs font-mono space-y-1.5">
+              <div className="font-bold flex items-center gap-2 text-white">
+                <AlertCircle className="w-4 h-4 text-[#F43F5E]" />
+                <span>CANNOT COMPLETE STAGE — RESOLVE THE FOLLOWING:</span>
               </div>
               {validationErrors.map((err, i) => (
-                <div key={i} className="pl-5 list-disc text-rose-700">
+                <div key={i} className="pl-6">
                   • {err}
                 </div>
               ))}
             </div>
           )}
 
-          {/* Submit Action Button */}
-          <div className="flex items-center justify-end gap-3 pt-2">
+          {/* SYNAPSE SHINY BORDER ACTION BUTTON */}
+          <div className="flex items-center justify-end pt-4">
             <button
               type="submit"
               disabled={isSaveBlockedByRole}
-              className={`w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 sm:py-2.5 rounded-xl sm:rounded-lg font-bold sm:font-semibold text-sm sm:text-xs shadow-md sm:shadow-sm transition-all cursor-pointer ${
-                isSaveBlockedByRole
-                  ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
-                  : 'bg-indigo-700 hover:bg-indigo-800 active:scale-[0.98] text-white'
-              }`}
+              className={`shiny-border-btn ${isSaveBlockedByRole ? 'opacity-40 cursor-not-allowed' : ''}`}
             >
-              <CheckCircle2 className="w-4 h-4" />
-              <span>Complete & Lock {selectedStage} Stage</span>
-              <ArrowRight className="w-4 h-4" />
+              <div className="shiny-border-btn-inner flex items-center space-x-2 text-white font-semibold text-sm">
+                <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
+                <span>Complete & Lock {selectedStage} Stage</span>
+                <ArrowRight className="w-4 h-4 text-[#06B6D4]" />
+              </div>
             </button>
           </div>
         </form>
