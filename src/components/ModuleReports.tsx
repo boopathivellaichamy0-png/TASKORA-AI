@@ -1,0 +1,601 @@
+import React, { useState } from 'react';
+import { ProductionBatch, StageRecord, ProductionStage } from '../types';
+import { STAGES_LIST } from '../utils/storage';
+import { getBatchSummaryMetrics } from '../utils/rules';
+import { 
+  FileText, 
+  Download, 
+  Printer, 
+  Search, 
+  Filter, 
+  AlertTriangle, 
+  CheckCircle, 
+  UserCheck, 
+  TrendingUp, 
+  Calendar,
+  Layers,
+  ArrowUpDown
+} from 'lucide-react';
+
+interface ModuleReportsProps {
+  batches: ProductionBatch[];
+  records: StageRecord[];
+}
+
+type ReportType = 
+  | 'progress' 
+  | 'missing' 
+  | 'rejections' 
+  | 'efficiency' 
+  | 'operators' 
+  | 'daily';
+
+export const ModuleReports: React.FC<ModuleReportsProps> = ({ batches, records }) => {
+  const [activeReport, setActiveReport] = useState<ReportType>('progress');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [stageFilter, setStageFilter] = useState<string>('ALL');
+  const [batchFilter, setBatchFilter] = useState<string>('ALL');
+
+  // Export table to CSV
+  const exportToCSV = (filename: string, rows: (string | number)[][], headers: string[]) => {
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${filename}-${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // 1. Missing Pieces Records
+  const missingRecords = records.filter(r => r.qty_missing > 0 && 
+    (stageFilter === 'ALL' || r.stage_name === stageFilter) &&
+    (batchFilter === 'ALL' || r.batch_no === batchFilter) &&
+    (searchTerm === '' || r.batch_no.toLowerCase().includes(searchTerm.toLowerCase()) || (r.missing_reason || '').toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  // 2. Rejection Records
+  const rejectionRecords = records.filter(r => r.qty_rejected > 0 &&
+    (stageFilter === 'ALL' || r.stage_name === stageFilter) &&
+    (batchFilter === 'ALL' || r.batch_no === batchFilter) &&
+    (searchTerm === '' || r.batch_no.toLowerCase().includes(searchTerm.toLowerCase()) || (r.rejection_reason || '').toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  // 5. Operator Aggregation
+  const operatorStats = React.useMemo(() => {
+    const map: Record<string, { name: string; stagesHandled: number; totalPassed: number; totalRejected: number; totalMissing: number }> = {};
+    records.forEach(r => {
+      const op = r.operator_name || 'Unknown Operator';
+      if (!map[op]) {
+        map[op] = { name: op, stagesHandled: 0, totalPassed: 0, totalRejected: 0, totalMissing: 0 };
+      }
+      map[op].stagesHandled += 1;
+      map[op].totalPassed += r.qty_passed;
+      map[op].totalRejected += r.qty_rejected;
+      map[op].totalMissing += r.qty_missing;
+    });
+    return Object.values(map).sort((a, b) => b.totalMissing + b.totalRejected - (a.totalMissing + a.totalRejected));
+  }, [records]);
+
+  // 6. Daily Summary Aggregation
+  const dailySummary = React.useMemo(() => {
+    const today = new Date().toISOString().split('T')[0];
+    const map: Record<ProductionStage, { received: number; passed: number; rejected: number; missing: number; count: number }> = {
+      Cutting: { received: 0, passed: 0, rejected: 0, missing: 0, count: 0 },
+      Stitching: { received: 0, passed: 0, rejected: 0, missing: 0, count: 0 },
+      QC: { received: 0, passed: 0, rejected: 0, missing: 0, count: 0 },
+      Finishing: { received: 0, passed: 0, rejected: 0, missing: 0, count: 0 },
+      Packing: { received: 0, passed: 0, rejected: 0, missing: 0, count: 0 },
+    };
+
+    records.forEach(r => {
+      // Include all or recent
+      if (map[r.stage_name]) {
+        map[r.stage_name].received += r.qty_received;
+        map[r.stage_name].passed += r.qty_passed;
+        map[r.stage_name].rejected += r.qty_rejected;
+        map[r.stage_name].missing += r.qty_missing;
+        map[r.stage_name].count += 1;
+      }
+    });
+
+    return map;
+  }, [records]);
+
+  return (
+    <div className="space-y-6">
+      {/* Top Header & Report Navigation Tabs */}
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
+          <div>
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <FileText className="w-5 h-5 text-indigo-400" />
+              <span>Production Loss & Accountability Reports</span>
+            </h2>
+            <p className="text-xs text-slate-400">
+              Audit trails, defect classifications, operator accountability, and stage yield metrics.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => window.print()}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition-colors"
+            >
+              <Printer className="w-4 h-4" />
+              <span>Print / PDF</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Report Selector Pills */}
+        <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-800">
+          {[
+            { id: 'progress', label: '1. Batch Progress', icon: Layers },
+            { id: 'missing', label: '2. Missing Pieces Log', icon: AlertTriangle },
+            { id: 'rejections', label: '3. Rejection & Scrap', icon: Filter },
+            { id: 'efficiency', label: '4. Production Efficiency', icon: TrendingUp },
+            { id: 'operators', label: '5. Operator Performance', icon: UserCheck },
+            { id: 'daily', label: '6. Stage Throughput', icon: Calendar }
+          ].map((item) => {
+            const Icon = item.icon;
+            const isActive = activeReport === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveReport(item.id as ReportType)}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+                  isActive
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                    : 'bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800'
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Filters Bar for Filterable Reports */}
+      {(activeReport === 'missing' || activeReport === 'rejections') && (
+        <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-xl flex flex-wrap items-center gap-3">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="w-4 h-4 absolute left-3 top-3 text-slate-500" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search batch or reason..."
+              className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-slate-400">Stage:</span>
+            <select
+              value={stageFilter}
+              onChange={(e) => setStageFilter(e.target.value)}
+              className="bg-slate-950 text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1.5 focus:outline-none cursor-pointer"
+            >
+              <option value="ALL">All Stages</option>
+              {STAGES_LIST.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-slate-400">Batch:</span>
+            <select
+              value={batchFilter}
+              onChange={(e) => setBatchFilter(e.target.value)}
+              className="bg-slate-950 text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1.5 focus:outline-none cursor-pointer"
+            >
+              <option value="ALL">All Batches</option>
+              {batches.map((b) => (
+                <option key={b.batch_no} value={b.batch_no}>{b.batch_no}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      )}
+
+      {/* REPORT 1: BATCH PROGRESS REPORT */}
+      {activeReport === 'progress' && (
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+            <h3 className="font-bold text-slate-100 text-sm">Batch Progress & Stage Handoff Report</h3>
+            <button
+              onClick={() => {
+                const headers = ['Batch No', 'Garment', 'Planned', 'Current Stage', 'Status', 'Cutting Out', 'Stitching Out', 'QC Out', 'Finishing Out', 'Packing Out'];
+                const rows = batches.map(b => {
+                  const bRecs = records.filter(r => r.batch_no === b.batch_no);
+                  return [
+                    b.batch_no,
+                    b.product_name,
+                    b.total_planned_qty,
+                    b.current_stage,
+                    b.status,
+                    bRecs.find(r => r.stage_name === 'Cutting')?.qty_passed ?? '—',
+                    bRecs.find(r => r.stage_name === 'Stitching')?.qty_passed ?? '—',
+                    bRecs.find(r => r.stage_name === 'QC')?.qty_passed ?? '—',
+                    bRecs.find(r => r.stage_name === 'Finishing')?.qty_passed ?? '—',
+                    bRecs.find(r => r.stage_name === 'Packing')?.qty_passed ?? '—'
+                  ];
+                });
+                exportToCSV('batch-progress-report', rows, headers);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export CSV</span>
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-950 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                <tr>
+                  <th className="p-3">Batch No</th>
+                  <th className="p-3">Garment</th>
+                  <th className="p-3 text-right">Planned</th>
+                  <th className="p-3 text-center">Status</th>
+                  <th className="p-3 text-right">Cutting</th>
+                  <th className="p-3 text-right">Stitching</th>
+                  <th className="p-3 text-right">QC</th>
+                  <th className="p-3 text-right">Finishing</th>
+                  <th className="p-3 text-right">Packing (Final)</th>
+                  <th className="p-3 text-right">Efficiency</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800">
+                {batches.map((b) => {
+                  const m = getBatchSummaryMetrics(b, records);
+                  const bRecs = records.filter(r => r.batch_no === b.batch_no);
+                  return (
+                    <tr key={b.batch_no} className="hover:bg-slate-800/40">
+                      <td className="p-3 font-bold text-indigo-400">{b.batch_no}</td>
+                      <td className="p-3 text-slate-200">{b.product_name} ({b.color} / {b.size})</td>
+                      <td className="p-3 text-right font-bold text-white">{b.total_planned_qty}</td>
+                      <td className="p-3 text-center">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          b.status === 'Completed' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-indigo-950 text-indigo-300 border border-indigo-800'
+                        }`}>
+                          {b.current_stage}
+                        </span>
+                      </td>
+                      <td className="p-3 text-right text-slate-300">{bRecs.find(r => r.stage_name === 'Cutting')?.qty_passed ?? '—'}</td>
+                      <td className="p-3 text-right text-slate-300">{bRecs.find(r => r.stage_name === 'Stitching')?.qty_passed ?? '—'}</td>
+                      <td className="p-3 text-right text-slate-300">{bRecs.find(r => r.stage_name === 'QC')?.qty_passed ?? '—'}</td>
+                      <td className="p-3 text-right text-slate-300">{bRecs.find(r => r.stage_name === 'Finishing')?.qty_passed ?? '—'}</td>
+                      <td className="p-3 text-right font-bold text-emerald-400">{bRecs.find(r => r.stage_name === 'Packing')?.qty_passed ?? '—'}</td>
+                      <td className="p-3 text-right font-extrabold text-indigo-300">{m.efficiency}%</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* REPORT 2: MISSING PIECES REPORT */}
+      {activeReport === 'missing' && (
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-rose-300 text-sm flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-rose-400" />
+                <span>Missing & Unaccounted Pieces Audit Trail</span>
+              </h3>
+              <p className="text-xs text-slate-400">Strict mandatory explanations captured at every station handoff.</p>
+            </div>
+            <button
+              onClick={() => {
+                const headers = ['Batch No', 'Stage', 'Date', 'Missing Qty', 'Operator', 'Mandatory Explanation'];
+                const rows = missingRecords.map(r => [
+                  r.batch_no,
+                  r.stage_name,
+                  r.date,
+                  r.qty_missing,
+                  r.operator_name,
+                  r.missing_reason || 'N/A'
+                ]);
+                exportToCSV('missing-pieces-report', rows, headers);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-semibold"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export CSV</span>
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-950 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                <tr>
+                  <th className="p-3">Batch No</th>
+                  <th className="p-3">Stage</th>
+                  <th className="p-3">Date</th>
+                  <th className="p-3 text-right">Missing Qty</th>
+                  <th className="p-3">Operator</th>
+                  <th className="p-3">Documented Reason (Mandatory Explanation)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800">
+                {missingRecords.map((r) => (
+                  <tr key={r.id} className="hover:bg-rose-950/20">
+                    <td className="p-3 font-bold text-slate-100">{r.batch_no}</td>
+                    <td className="p-3 font-semibold text-indigo-400">{r.stage_name}</td>
+                    <td className="p-3 text-slate-400">{r.date}</td>
+                    <td className="p-3 text-right font-extrabold text-rose-400">{r.qty_missing} pcs</td>
+                    <td className="p-3 text-slate-300">{r.operator_name}</td>
+                    <td className="p-3">
+                      <span className="bg-rose-950/60 px-2.5 py-1 rounded text-rose-200 border border-rose-900/60 font-medium">
+                        {r.missing_reason}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* REPORT 3: REJECTION & SCRAP REPORT */}
+      {activeReport === 'rejections' && (
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-amber-300 text-sm flex items-center gap-2">
+                <Filter className="w-4 h-4 text-amber-400" />
+                <span>Defective Pieces & Rejection Categorization</span>
+              </h3>
+              <p className="text-xs text-slate-400">Classified defects by stage, defect type, and root cause.</p>
+            </div>
+            <button
+              onClick={() => {
+                const headers = ['Batch No', 'Stage', 'Date', 'Rejected Qty', 'Defect Category', 'Operator', 'Rejection Reason'];
+                const rows = rejectionRecords.map(r => [
+                  r.batch_no,
+                  r.stage_name,
+                  r.date,
+                  r.qty_rejected,
+                  r.defect_type || 'Unspecified',
+                  r.operator_name,
+                  r.rejection_reason || 'N/A'
+                ]);
+                exportToCSV('rejection-report', rows, headers);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-semibold"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export CSV</span>
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-950 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                <tr>
+                  <th className="p-3">Batch No</th>
+                  <th className="p-3">Stage</th>
+                  <th className="p-3">Date</th>
+                  <th className="p-3 text-right">Rejected Qty</th>
+                  <th className="p-3">Defect Category</th>
+                  <th className="p-3">Operator</th>
+                  <th className="p-3">Rejection Reason & Description</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800">
+                {rejectionRecords.map((r) => (
+                  <tr key={r.id} className="hover:bg-amber-950/20">
+                    <td className="p-3 font-bold text-slate-100">{r.batch_no}</td>
+                    <td className="p-3 font-semibold text-indigo-400">{r.stage_name}</td>
+                    <td className="p-3 text-slate-400">{r.date}</td>
+                    <td className="p-3 text-right font-extrabold text-amber-400">{r.qty_rejected} pcs</td>
+                    <td className="p-3 text-amber-300 font-medium">{r.defect_type || 'General Defect'}</td>
+                    <td className="p-3 text-slate-300">{r.operator_name}</td>
+                    <td className="p-3 text-slate-200">{r.rejection_reason}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* REPORT 4: PRODUCTION EFFICIENCY REPORT */}
+      {activeReport === 'efficiency' && (
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+            <h3 className="font-bold text-indigo-300 text-sm">Batch Production Efficiency vs Planned Master</h3>
+            <button
+              onClick={() => {
+                const headers = ['Batch No', 'Garment', 'Planned Master', 'Final Output', 'Total Loss', 'Loss %', 'Efficiency %', 'Evaluation'];
+                const rows = batches.map(b => {
+                  const m = getBatchSummaryMetrics(b, records);
+                  return [
+                    b.batch_no,
+                    b.product_name,
+                    m.planned,
+                    m.finalPassedOutput,
+                    m.totalLoss,
+                    `${m.lossPercentage}%`,
+                    `${m.efficiency}%`,
+                    m.efficiency >= 90 ? 'High Yield' : 'Substandard Yield'
+                  ];
+                });
+                exportToCSV('production-efficiency-report', rows, headers);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export CSV</span>
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-950 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                <tr>
+                  <th className="p-3">Batch No</th>
+                  <th className="p-3">Garment</th>
+                  <th className="p-3 text-right">Planned Master</th>
+                  <th className="p-3 text-right">Output Passed</th>
+                  <th className="p-3 text-right">Total Lost (Scrap+Missing)</th>
+                  <th className="p-3 text-right">Loss Rate</th>
+                  <th className="p-3 text-right">Overall Efficiency</th>
+                  <th className="p-3 text-center">Benchmark</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800">
+                {batches.map((b) => {
+                  const m = getBatchSummaryMetrics(b, records);
+                  return (
+                    <tr key={b.batch_no} className="hover:bg-slate-800/40">
+                      <td className="p-3 font-bold text-slate-100">{b.batch_no}</td>
+                      <td className="p-3 text-slate-300">{b.product_name}</td>
+                      <td className="p-3 text-right font-bold text-amber-300">{m.planned}</td>
+                      <td className="p-3 text-right font-bold text-emerald-400">{m.finalPassedOutput}</td>
+                      <td className="p-3 text-right font-bold text-rose-400">{m.totalLoss} pcs</td>
+                      <td className="p-3 text-right font-semibold text-rose-300">{m.lossPercentage}%</td>
+                      <td className="p-3 text-right font-extrabold text-base text-indigo-300">{m.efficiency}%</td>
+                      <td className="p-3 text-center">
+                        {m.efficiency >= 90 ? (
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
+                            Excellent Yield (&gt;=90%)
+                          </span>
+                        ) : (
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-950 text-rose-300 border border-rose-800">
+                            High Variance (&lt;90%)
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* REPORT 5: OPERATOR PERFORMANCE REPORT */}
+      {activeReport === 'operators' && (
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-slate-100 text-sm">Operator Performance & Scrap Rate Analysis</h3>
+              <p className="text-xs text-slate-400">Total pieces passed vs defect and missing pieces per operator.</p>
+            </div>
+            <button
+              onClick={() => {
+                const headers = ['Operator Name', 'Stages Completed', 'Total Passed', 'Total Rejected', 'Total Missing'];
+                const rows = operatorStats.map(op => [
+                  op.name,
+                  op.stagesHandled,
+                  op.totalPassed,
+                  op.totalRejected,
+                  op.totalMissing
+                ]);
+                exportToCSV('operator-performance-report', rows, headers);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export CSV</span>
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-950 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                <tr>
+                  <th className="p-3">Operator / Station Lead</th>
+                  <th className="p-3 text-center">Stages Handled</th>
+                  <th className="p-3 text-right">Total Passed</th>
+                  <th className="p-3 text-right">Defective / Rejected</th>
+                  <th className="p-3 text-right">Missing Under Watch</th>
+                  <th className="p-3 text-right">Total Accountability Variance</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800">
+                {operatorStats.map((op) => {
+                  const totalLoss = op.totalRejected + op.totalMissing;
+                  return (
+                    <tr key={op.name} className="hover:bg-slate-800/40">
+                      <td className="p-3 font-bold text-slate-100 flex items-center gap-2">
+                        <UserCheck className="w-4 h-4 text-indigo-400" />
+                        <span>{op.name}</span>
+                      </td>
+                      <td className="p-3 text-center text-slate-300">{op.stagesHandled}</td>
+                      <td className="p-3 text-right font-bold text-emerald-400">{op.totalPassed} pcs</td>
+                      <td className="p-3 text-right font-bold text-amber-400">{op.totalRejected} pcs</td>
+                      <td className="p-3 text-right font-bold text-rose-400">{op.totalMissing} pcs</td>
+                      <td className="p-3 text-right font-extrabold text-slate-200">
+                        {totalLoss > 0 ? (
+                          <span className="text-amber-300">{totalLoss} pcs</span>
+                        ) : (
+                          <span className="text-emerald-400">0 variance</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* REPORT 6: DAILY STAGE SUMMARY */}
+      {activeReport === 'daily' && (
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-slate-100 text-sm">Stage-wise Throughput Summary</h3>
+              <p className="text-xs text-slate-400">Aggregate pieces that moved through Cutting, Stitching, QC, Finishing, and Packing.</p>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-950 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                <tr>
+                  <th className="p-3">Production Stage</th>
+                  <th className="p-3 text-center">Batches Processed</th>
+                  <th className="p-3 text-right">Total In (Received)</th>
+                  <th className="p-3 text-right">Total Out (Passed)</th>
+                  <th className="p-3 text-right">Total Rejected</th>
+                  <th className="p-3 text-right">Total Missing</th>
+                  <th className="p-3 text-right">Stage Pass Rate</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800">
+                {STAGES_LIST.map((stage) => {
+                  const stat = dailySummary[stage];
+                  const passRate = stat.received > 0 ? ((stat.passed / stat.received) * 100).toFixed(1) : '100';
+                  return (
+                    <tr key={stage} className="hover:bg-slate-800/40">
+                      <td className="p-3 font-bold text-indigo-400">{stage}</td>
+                      <td className="p-3 text-center text-slate-300">{stat.count} entries</td>
+                      <td className="p-3 text-right text-slate-200 font-semibold">{stat.received}</td>
+                      <td className="p-3 text-right text-emerald-400 font-bold">{stat.passed}</td>
+                      <td className="p-3 text-right text-amber-400 font-bold">{stat.rejected}</td>
+                      <td className="p-3 text-right text-rose-400 font-extrabold">{stat.missing}</td>
+                      <td className="p-3 text-right font-extrabold text-indigo-300">{passRate}%</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
