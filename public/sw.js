@@ -1,15 +1,14 @@
 // Taskora AI Lightweight Service Worker for PWA installability
-const CACHE_NAME = 'taskora-ai-cache-v1';
+const CACHE_NAME = 'taskora-ai-cache-v2';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll([
-        '/',
-        '/index.html',
-        '/manifest.json',
-        '/app-icon.svg',
-        '/favicon.svg'
+        './',
+        './index.html',
+        './manifest.json',
+        './app-icon.svg'
       ]).catch(() => {
         // Continue even if initial offline asset cache is partial
       });
