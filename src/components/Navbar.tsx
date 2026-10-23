@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { UserRole } from '../types';
+import { TaskoraLogo } from './TaskoraLogo';
 import { 
   Scissors, 
   AlertTriangle, 
@@ -67,26 +68,18 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <>
-      {/* SYNAPSE FLOATING GLASS NAVIGATION PILL */}
+      {/* TASKORA AI FLOATING GLASS NAVIGATION PILL */}
       <header className="sticky top-4 z-40 px-3 sm:px-6 w-full pt-[env(safe-area-inset-top,0px)]">
         <div className="max-w-6xl mx-auto rounded-full px-4 sm:px-6 py-2.5 glass-panel shadow-[0_8px_32px_rgba(0,0,0,0.7)] flex items-center justify-between border border-white/10 transition-all transition-snappy">
           
-          {/* Left: Synapse Brand Logo (4px gradient circle + Instrument Serif text) */}
+          {/* Left: Taskora AI Brand Logo & Name */}
           <div className="flex items-center space-x-2.5 sm:space-x-3 shrink-0">
-            <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-tr from-[#8B5CF6] via-[#06B6D4] to-[#10B981] shadow-[0_0_10px_rgba(139,92,246,0.8)]" />
-            <div className="flex items-center space-x-2">
-              <span className="font-serif-instrument text-xl sm:text-2xl tracking-tight text-white font-normal">
-                Synapse
+            <TaskoraLogo size={32} />
+            {isInstalled && (
+              <span className="px-1.5 py-0.5 text-[9px] font-mono font-bold bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 rounded-md">
+                APP
               </span>
-              <span className="hidden sm:inline-block font-mono text-[9px] uppercase tracking-widest text-[#06B6D4] bg-[#06B6D4]/10 border border-[#06B6D4]/20 px-2 py-0.5 rounded-full">
-                Garment Neural OS
-              </span>
-              {isInstalled && (
-                <span className="px-1.5 py-0.5 text-[9px] font-mono font-bold bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 rounded-md">
-                  APP
-                </span>
-              )}
-            </div>
+            )}
           </div>
 
           {/* Center: Desktop Nav Tabs (12px uppercase Inter, neutral-400) */}
@@ -141,7 +134,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 type="button"
                 onClick={handleInstallClick}
                 className="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-[#8B5CF6]/15 border border-[#8B5CF6]/30 text-[#8B5CF6] text-xs font-semibold hover:bg-[#8B5CF6]/25 transition-colors cursor-pointer"
-                title="Install Synapse PWA App"
+                title="Install Taskora AI App"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Install</span>

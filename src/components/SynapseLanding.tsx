@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { TaskoraLogo } from './TaskoraLogo';
 import { 
   ArrowRight, 
   Terminal, 
@@ -29,7 +30,7 @@ export const SynapseLanding: React.FC<SynapseLandingProps> = ({
 }) => {
   const [copiedCode, setCopiedCode] = useState(false);
 
-  const sampleCode = `import { SynapseEngine, ProductionPipeline } from "@synapse/core";
+  const sampleCode = `import { TaskoraEngine, ProductionPipeline } from "@taskora/core";
 
 // Initialize stage-wise zero-loss tracking pipeline
 const pipeline = new ProductionPipeline({
@@ -42,7 +43,7 @@ const pipeline = new ProductionPipeline({
 // Autonomous piece-level verification & loss interception
 pipeline.onStageTransition(async ({ stage, received, passed, rejected, missing }) => {
   if (missing > 0) {
-    await SynapseEngine.dispatchDiscrepancyIncident({
+    await TaskoraEngine.dispatchDiscrepancyIncident({
       variance: -missing,
       notifyAdmin: true,
       mandatoryReasonEnforced: true
@@ -91,18 +92,12 @@ pipeline.onStageTransition(async ({ stage, received, passed, rejected, missing }
 
       {/* FIXED NAVIGATION PILL */}
       <nav 
-        aria-label="Synapse Floating Navigation"
+        aria-label="Taskora AI Floating Navigation"
         className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-[672px] rounded-full px-4 py-2.5 flex items-center justify-between glass-panel shadow-[0_8px_32px_rgba(0,0,0,0.6)] border border-white/10"
       >
-        {/* Left-aligned logo (4px gradient circle + Instrument Serif text) */}
-        <div className="flex items-center space-x-2.5 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-tr from-[#8B5CF6] via-[#06B6D4] to-[#10B981] shadow-[0_0_10px_rgba(139,92,246,0.8)]" />
-          <span className="font-serif-instrument text-xl tracking-tight text-white font-normal">
-            Synapse
-          </span>
-          <span className="text-[9px] font-mono tracking-widest text-[#06B6D4] bg-[#06B6D4]/10 border border-[#06B6D4]/20 px-1.5 py-0.5 rounded-full uppercase">
-            2.0
-          </span>
+        {/* Left-aligned logo */}
+        <div className="flex items-center cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <TaskoraLogo size={28} />
         </div>
 
         {/* Center-aligned links (12px uppercase Inter, neutral-400) */}
@@ -154,7 +149,7 @@ pipeline.onStageTransition(async ({ stage, received, passed, rejected, missing }
 
         {/* Subtext */}
         <p className="max-w-2xl text-neutral-400 text-base sm:text-lg lg:text-xl font-normal leading-relaxed mb-12 font-inter">
-          Synapse replaces fragmented spreadsheets with an immutable 5-stage tracking neural network. Every piece is verified through Cutting, Stitching, QC, Finishing, and Packing with instant shortage detection.
+          Taskora AI replaces fragmented spreadsheets with an immutable 5-stage tracking neural network. Every piece is verified through Cutting, Stitching, QC, Finishing, and Packing with instant shortage detection.
         </p>
 
         {/* Interactive CTA buttons */}
@@ -400,10 +395,7 @@ pipeline.onStageTransition(async ({ stage, received, passed, rejected, missing }
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 pb-16 border-b border-white/5">
             {/* Branding */}
             <div className="space-y-4">
-              <div className="flex items-center space-x-2.5">
-                <div className="w-3 h-3 rounded-full bg-gradient-to-tr from-[#8B5CF6] to-[#06B6D4]" />
-                <span className="font-serif-instrument text-2xl text-white">Synapse</span>
-              </div>
+              <TaskoraLogo size={32} />
               <p className="text-neutral-500 text-xs leading-relaxed max-w-xs font-inter">
                 Futuristic editorial manufacturing architecture. Precision tracking from raw fabric rolls to final export shipping bundles.
               </p>
@@ -452,7 +444,7 @@ pipeline.onStageTransition(async ({ stage, received, passed, rejected, missing }
           {/* Bottom Bar */}
           <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-neutral-500">
             <div>
-              &copy; {new Date().getFullYear()} Synapse Neural Manufacturing. All rights reserved.
+              &copy; {new Date().getFullYear()} Taskora AI Neural Manufacturing. All rights reserved.
             </div>
 
             {/* Emerald Operational Status Indicator */}

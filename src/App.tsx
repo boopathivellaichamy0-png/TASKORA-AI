@@ -19,6 +19,7 @@ import { ModuleBatchDashboard } from './components/ModuleBatchDashboard';
 import { ModuleReports } from './components/ModuleReports';
 import { ModuleMasterData } from './components/ModuleMasterData';
 import { AlertsDrawer } from './components/AlertsDrawer';
+import { TaskoraLogo } from './components/TaskoraLogo';
 
 export function App() {
   const [products, setProducts] = useState<Product[]>(getStoredProducts);
@@ -178,7 +179,7 @@ export function App() {
   const activeMetrics = currentBatch ? getBatchSummaryMetrics(currentBatch, records) : null;
 
   const tickerItems = [
-    { label: "SYNAPSE PIPELINE", value: "5-STAGE ACTIVE", color: "text-[#06B6D4]" },
+    { label: "TASKORA AI PIPELINE", value: "5-STAGE ACTIVE", color: "text-[#06B6D4]" },
     { label: "ACTIVE ORDER", value: currentBatch?.batch_no || "NONE", color: "text-white" },
     { label: "YIELD EFFICIENCY", value: `${activeMetrics?.efficiency || 100}%`, color: "text-[#10B981]" },
     { label: "ACCOUNTABILITY", value: "ZERO-TOLERANCE", color: "text-[#8B5CF6]" },
@@ -325,12 +326,11 @@ export function App() {
         }}
       />
 
-      {/* SYNAPSE EDITORIAL FOOTER */}
+      {/* TASKORA AI EDITORIAL FOOTER */}
       <footer className="relative z-10 border-t border-white/5 py-8 mt-12 bg-[#050505] text-xs font-mono text-neutral-500">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-2.5">
-            <div className="w-2 h-2 rounded-full bg-gradient-to-r from-[#8B5CF6] to-[#06B6D4]" />
-            <span className="font-serif-instrument text-base text-white tracking-normal">Synapse Taskora</span>
+            <TaskoraLogo size={24} textClassName="text-base" />
             <span className="text-neutral-600">//</span>
             <span className="text-neutral-400">Garment Production Neural OS</span>
           </div>
