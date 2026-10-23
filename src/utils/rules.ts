@@ -7,6 +7,7 @@ export interface StageCalculation {
   qty_rejected: number;
   qty_rework: number;
   qty_missing: number;
+  qty_surplus: number;
   isValidTotal: boolean;
   errorMessage?: string;
 }
@@ -18,10 +19,55 @@ export function computeStageMissing(
   rejected: number,
   rework: number = 0
 ): number {
-  if (stage === 'QC') {
-    return Math.max(0, received - (passed + rework + rejected));
+  const total = passed + rejected + (stage === 'QC' ? rework : 0);
+  if (total < received) {
+    return received - total;
   }
-  return Math.max(0, received - (passed + rejected));
+  return 0;
+}
+
+export function computeStageSurplus(
+  stage: ProductionStage,
+  received: number,
+  passed: number,
+  rejected: number,
+  rework: number = 0
+): number {
+  const total = passed + rejected + (stage === 'QC' ? rework : 0);
+  if (total > received) {
+    return total - received;
+  }
+  return 0;
+}
+
+export function getPreviousStageInfo(
+  batch: ProductionBatch,
+  currentStage: ProductionStage,
+  records: StageRecord[]
+): { stage: ProductionStage | 'Planning Master'; operator: string; recordedQty: number } {
+  if (currentStage === 'Cutting') {
+    return {
+      stage: 'Planning Master',
+      operator: batch.created_by || 'Production Manager',
+      recordedQty: batch.total_planned_qty
+    };
+  }
+
+  const prevStage = getPreviousStage(currentStage);
+  if (!prevStage) {
+    return {
+      stage: 'Planning Master',
+      operator: batch.created_by || 'Production Manager',
+      recordedQty: batch.total_planned_qty
+    };
+  }
+
+  const prevRecord = records.find(r => r.batch_no === batch.batch_no && r.stage_name === prevStage);
+  return {
+    stage: prevStage,
+    operator: prevRecord ? prevRecord.operator_name : 'Previous Stage Operator',
+    recordedQty: prevRecord ? prevRecord.qty_passed : 0
+  };
 }
 
 export function validateStageInput(
@@ -31,21 +77,27 @@ export function validateStageInput(
   rejected: number,
   rework: number = 0,
   rejectionReason: string = '',
-  missingReason: string = ''
-): { valid: boolean; errors: string[] } {
+  missingReason: string = '',
+  surplusReason: string = '',
+  isDiscrepancyReportSent: boolean = false
+): { valid: boolean; errors: string[]; isSurplus: boolean; surplusQty: number } {
   const errors: string[] = [];
 
   const totalAccounted = passed + rejected + (stage === 'QC' ? rework : 0);
-  
-  if (totalAccounted > received) {
-    errors.push(`Total pieces (${totalAccounted}) exceed what was received (${received}).`);
+  const surplusQty = computeStageSurplus(stage, received, passed, rejected, rework);
+  const isSurplus = surplusQty > 0;
+
+  // RULE for Surplus: If counted pieces exceed received from previous stage,
+  // operator must document surplus reason and send discrepancy report to Admin!
+  if (isSurplus && !isDiscrepancyReportSent && (!surplusReason || surplusReason.trim().length === 0)) {
+    errors.push(`⚠️ Surplus Detected: ${totalAccounted} pieces exceed received (${received}) by +${surplusQty} pieces. You must document an explanation and send an Incident Report to Admin regarding the previous stage operator.`);
   }
 
   const missing = computeStageMissing(stage, received, passed, rejected, rework);
 
   // RULE 2: Block if Missing and No Reason
   if (missing > 0 && (!missingReason || missingReason.trim().length === 0)) {
-    errors.push(`⚠️ ${missing} piece${missing > 1 ? 's are' : ' is'} unaccounted for. You must enter a reason.`);
+    errors.push(`⚠️ Shortage Detected: ${missing} piece${missing > 1 ? 's are' : ' is'} unaccounted for. You must enter a reason.`);
   }
 
   // RULE 3: Block if Rejected and No Reason
@@ -59,7 +111,9 @@ export function validateStageInput(
 
   return {
     valid: errors.length === 0,
-    errors
+    errors,
+    isSurplus,
+    surplusQty
   };
 }
 
@@ -76,6 +130,7 @@ export function getBatchSummaryMetrics(batch: ProductionBatch, records: StageRec
   
   let totalRejected = 0;
   let totalMissing = 0;
+  let totalSurplus = 0;
   let finalPassedOutput = 0;
 
   STAGES_LIST.forEach(stageName => {
@@ -83,6 +138,9 @@ export function getBatchSummaryMetrics(batch: ProductionBatch, records: StageRec
     if (rec) {
       totalRejected += rec.qty_rejected;
       totalMissing += rec.qty_missing;
+      if (rec.qty_surplus) {
+        totalSurplus += rec.qty_surplus;
+      }
       if (stageName === 'Packing') {
         finalPassedOutput = rec.qty_passed;
       }
@@ -97,7 +155,7 @@ export function getBatchSummaryMetrics(batch: ProductionBatch, records: StageRec
     finalPassedOutput = lastRecord.qty_passed;
   }
 
-  const totalLoss = totalRejected + totalMissing;
+  const totalLoss = Math.max(0, totalRejected + totalMissing - totalSurplus);
   const planned = batch.total_planned_qty;
   const efficiency = planned > 0 ? ((finalPassedOutput / planned) * 100).toFixed(1) : '0';
   const lossPercentage = planned > 0 ? ((totalLoss / planned) * 100).toFixed(1) : '0';
@@ -109,6 +167,7 @@ export function getBatchSummaryMetrics(batch: ProductionBatch, records: StageRec
     finalPassedOutput,
     totalRejected,
     totalMissing,
+    totalSurplus,
     totalLoss,
     efficiency: Number(efficiency),
     lossPercentage: Number(lossPercentage),

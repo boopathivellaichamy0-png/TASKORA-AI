@@ -1,4 +1,4 @@
-import { Product, ProductionBatch, StageRecord, ProductionStage } from '../types';
+import { Product, ProductionBatch, StageRecord, ProductionStage, DiscrepancyReport } from '../types';
 
 export const STAGES_LIST: ProductionStage[] = ['Cutting', 'Stitching', 'QC', 'Finishing', 'Packing'];
 
@@ -273,12 +273,44 @@ export const INITIAL_STAGE_RECORDS: StageRecord[] = [
   }
 ];
 
+export const INITIAL_DISCREPANCIES: DiscrepancyReport[] = [
+  {
+    id: 'DISC-001',
+    batch_no: 'BATCH-2026-002',
+    stage_name: 'QC',
+    current_operator: 'David Vance (Senior QC)',
+    previous_stage: 'Stitching',
+    previous_operator: 'Amina Khatun (Sewing Lead)',
+    type: 'Shortage (Received Less)',
+    expected_qty: 298,
+    counted_qty: 292,
+    variance_qty: -6,
+    message: 'Bundle #7 tally ticket showed 298 pieces passed stitching, but QC bin physical recount arrived with 292 pieces (6 pieces missing from handoff).',
+    status: 'Reported to Admin',
+    reported_at: '2026-10-22T17:00:00Z'
+  }
+];
+
 const STORAGE_KEYS = {
   PRODUCTS: 'taskora_products_v1',
   BATCHES: 'taskora_batches_v1',
   STAGE_RECORDS: 'taskora_stage_records_v1',
+  DISCREPANCIES: 'taskora_discrepancies_v1',
   CURRENT_USER_ROLE: 'taskora_user_role_v1',
   CURRENT_USER_NAME: 'taskora_user_name_v1'
+};
+
+export const getStoredDiscrepancies = (): DiscrepancyReport[] => {
+  try {
+    const data = localStorage.getItem(STORAGE_KEYS.DISCREPANCIES);
+    return data ? JSON.parse(data) : INITIAL_DISCREPANCIES;
+  } catch {
+    return INITIAL_DISCREPANCIES;
+  }
+};
+
+export const saveDiscrepancies = (reports: DiscrepancyReport[]) => {
+  localStorage.setItem(STORAGE_KEYS.DISCREPANCIES, JSON.stringify(reports));
 };
 
 export const getStoredProducts = (): Product[] => {
@@ -324,7 +356,9 @@ export const resetStorageToDefaults = () => {
   localStorage.removeItem(STORAGE_KEYS.PRODUCTS);
   localStorage.removeItem(STORAGE_KEYS.BATCHES);
   localStorage.removeItem(STORAGE_KEYS.STAGE_RECORDS);
+  localStorage.removeItem(STORAGE_KEYS.DISCREPANCIES);
   localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(INITIAL_PRODUCTS));
   localStorage.setItem(STORAGE_KEYS.BATCHES, JSON.stringify(INITIAL_BATCHES));
   localStorage.setItem(STORAGE_KEYS.STAGE_RECORDS, JSON.stringify(INITIAL_STAGE_RECORDS));
+  localStorage.setItem(STORAGE_KEYS.DISCREPANCIES, JSON.stringify(INITIAL_DISCREPANCIES));
 };

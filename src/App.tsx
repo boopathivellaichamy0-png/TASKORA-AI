@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Product, ProductionBatch, StageRecord, UserRole, ProductionStage } from './types';
+import { Product, ProductionBatch, StageRecord, UserRole, DiscrepancyReport } from './types';
 import { 
   getStoredProducts, 
   saveProducts, 
@@ -7,6 +7,8 @@ import {
   saveBatches, 
   getStoredStageRecords, 
   saveStageRecords, 
+  getStoredDiscrepancies,
+  saveDiscrepancies,
   resetStorageToDefaults 
 } from './utils/storage';
 import { getNextStage, getBatchSummaryMetrics } from './utils/rules';
@@ -17,17 +19,16 @@ import { ModuleBatchDashboard } from './components/ModuleBatchDashboard';
 import { ModuleReports } from './components/ModuleReports';
 import { ModuleMasterData } from './components/ModuleMasterData';
 import { AlertsDrawer } from './components/AlertsDrawer';
-import { Scissors, AlertCircle, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export function App() {
   const [products, setProducts] = useState<Product[]>(getStoredProducts);
   const [batches, setBatches] = useState<ProductionBatch[]>(getStoredBatches);
   const [records, setRecords] = useState<StageRecord[]>(getStoredStageRecords);
+  const [discrepancies, setDiscrepancies] = useState<DiscrepancyReport[]>(getStoredDiscrepancies);
   const [selectedBatchNo, setSelectedBatchNo] = useState<string>(() => batches[0]?.batch_no || 'BATCH-2026-001');
   const [currentRole, setCurrentRole] = useState<UserRole>('Admin');
   const [activeTab, setActiveTab] = useState<'tracker' | 'dashboard' | 'master' | 'reports'>('tracker');
   const [isAlertsOpen, setIsAlertsOpen] = useState(false);
-  const [isNewBatchModalOpen, setIsNewBatchModalOpen] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'alert' } | null>(null);
 
   // Sync state to LocalStorage
@@ -43,16 +44,53 @@ export function App() {
     saveStageRecords(records);
   }, [records]);
 
+  useEffect(() => {
+    saveDiscrepancies(discrepancies);
+  }, [discrepancies]);
+
   // Current active batch object
   const currentBatch = batches.find(b => b.batch_no === selectedBatchNo) || batches[0];
 
-  // Count active alerts
+  // Count active alerts & discrepancies
   const totalMissingRecords = records.filter(r => r.qty_missing > 0).length;
   const highLossBatchesCount = batches.filter(b => getBatchSummaryMetrics(b, records).isHighLoss).length;
+  const openDiscrepanciesCount = discrepancies.filter(d => d.status !== 'Resolved by Admin').length;
   const totalAlertsCount = totalMissingRecords + highLossBatchesCount;
 
+  // Handle explicit or auto-filed discrepancy report to Admin
+  const handleSendDiscrepancyReport = (reportData: Omit<DiscrepancyReport, 'id' | 'reported_at'>) => {
+    const newReport: DiscrepancyReport = {
+      ...reportData,
+      id: `DISC-${Date.now().toString().slice(-4)}`,
+      reported_at: new Date().toISOString()
+    };
+
+    setDiscrepancies(prev => [newReport, ...prev]);
+    setNotification({
+      message: `📩 Discrepancy Report sent to Admin regarding previous operator ${reportData.previous_operator} (${reportData.previous_stage})!`,
+      type: 'alert'
+    });
+
+    setTimeout(() => setNotification(null), 6000);
+  };
+
+  const handleUpdateDiscrepancyStatus = (
+    id: string, 
+    status: 'Reported to Admin' | 'Under Investigation' | 'Resolved by Admin'
+  ) => {
+    setDiscrepancies(prev => prev.map(d => d.id === id ? { ...d, status } : d));
+    setNotification({
+      message: `Updated Discrepancy Incident status to: ${status}`,
+      type: 'success'
+    });
+    setTimeout(() => setNotification(null), 4000);
+  };
+
   // Save new stage record & advance batch stage automatically (RULE 4)
-  const handleSaveStageRecord = (recordData: Omit<StageRecord, 'id' | 'submitted_at'>) => {
+  const handleSaveStageRecord = (
+    recordData: Omit<StageRecord, 'id' | 'submitted_at'>,
+    discrepancyToLog?: Omit<DiscrepancyReport, 'id' | 'reported_at'>
+  ) => {
     const newRecordId = `REC-${Date.now().toString().slice(-6)}-${recordData.stage_name.toUpperCase()}`;
     const newRecord: StageRecord = {
       ...recordData,
@@ -79,6 +117,11 @@ export function App() {
 
     setRecords(updatedRecords);
     setBatches(updatedBatches);
+
+    // If an incident discrepancy occurred, log it to Admin
+    if (discrepancyToLog) {
+      handleSendDiscrepancyReport(discrepancyToLog);
+    }
 
     setNotification({
       message: `✅ ${recordData.stage_name} stage logged successfully! ${
@@ -116,6 +159,7 @@ export function App() {
       setProducts(getStoredProducts());
       setBatches(getStoredBatches());
       setRecords(getStoredStageRecords());
+      setDiscrepancies(getStoredDiscrepancies());
       setSelectedBatchNo(getStoredBatches()[0]?.batch_no || 'BATCH-2026-001');
       setNotification({
         message: '🔄 Data reset to default factory sample records.',
@@ -133,6 +177,7 @@ export function App() {
         onRoleChange={setCurrentRole}
         onResetData={handleResetData}
         alertCount={totalAlertsCount}
+        discrepancyCount={openDiscrepanciesCount}
         onOpenAlerts={() => setIsAlertsOpen(true)}
         activeTab={activeTab}
         onTabChange={setActiveTab}
@@ -149,7 +194,7 @@ export function App() {
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Active Batch Selector Strip (Always visible except master data tab) */}
+        {/* Active Batch Selector Strip */}
         {activeTab !== 'master' && currentBatch && (
           <BatchSelector
             batches={batches}
@@ -162,12 +207,13 @@ export function App() {
           />
         )}
 
-        {/* Tab 1: Stage Tracker (Core Module) */}
+        {/* Tab 1: Stage Tracker (Core Module with Discrepancy Reporting to Admin) */}
         {activeTab === 'tracker' && currentBatch && (
           <ModuleStageTracker
             batch={currentBatch}
             records={records}
             onSaveRecord={handleSaveStageRecord}
+            onSendDiscrepancyReport={handleSendDiscrepancyReport}
             currentRole={currentRole}
           />
         )}
@@ -177,7 +223,7 @@ export function App() {
           <ModuleBatchDashboard
             batch={currentBatch}
             records={records}
-            onSelectStageTab={(stage) => {
+            onSelectStageTab={() => {
               setActiveTab('tracker');
             }}
           />
@@ -209,12 +255,14 @@ export function App() {
         )}
       </main>
 
-      {/* Alerts Slideover Drawer */}
+      {/* Alerts & Discrepancies Slideover Drawer */}
       <AlertsDrawer
         isOpen={isAlertsOpen}
         onClose={() => setIsAlertsOpen(false)}
         batches={batches}
         records={records}
+        discrepancies={discrepancies}
+        onUpdateDiscrepancyStatus={handleUpdateDiscrepancyStatus}
         onSelectBatch={(bNo) => {
           setSelectedBatchNo(bNo);
           setActiveTab('dashboard');

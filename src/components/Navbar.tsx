@@ -7,6 +7,7 @@ interface NavbarProps {
   onRoleChange: (role: UserRole) => void;
   onResetData: () => void;
   alertCount: number;
+  discrepancyCount?: number;
   onOpenAlerts: () => void;
   activeTab: 'tracker' | 'dashboard' | 'master' | 'reports';
   onTabChange: (tab: 'tracker' | 'dashboard' | 'master' | 'reports') => void;
@@ -19,6 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onRoleChange,
   onResetData,
   alertCount,
+  discrepancyCount = 0,
   onOpenAlerts,
   activeTab,
   onTabChange
@@ -93,16 +95,29 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Right Side: Alerts, Role Switcher & Reset */}
           <div className="flex items-center space-x-3">
+            {/* Discrepancy Alert Pill (If open discrepancies exist) */}
+            {discrepancyCount > 0 && (
+              <button
+                type="button"
+                onClick={onOpenAlerts}
+                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-950/80 border border-rose-600/80 text-rose-300 text-xs font-bold shadow-md shadow-rose-950 animate-pulse hover:bg-rose-900"
+                title="Open Discrepancy Reports"
+              >
+                <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                <span>🚨 {discrepancyCount} Discrepanc{discrepancyCount > 1 ? 'ies' : 'y'}</span>
+              </button>
+            )}
+
             {/* Alerts button */}
             <button
               onClick={onOpenAlerts}
               className="relative p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-300 hover:text-white transition-colors"
               title="View Alerts & Discrepancies"
             >
-              <AlertTriangle className={`w-4 h-4 ${alertCount > 0 ? 'text-amber-400' : 'text-slate-400'}`} />
-              {alertCount > 0 && (
+              <AlertTriangle className={`w-4 h-4 ${alertCount > 0 || discrepancyCount > 0 ? 'text-amber-400' : 'text-slate-400'}`} />
+              {(alertCount > 0 || discrepancyCount > 0) && (
                 <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-600 text-[10px] font-bold text-white ring-2 ring-slate-900 animate-pulse">
-                  {alertCount}
+                  {alertCount + discrepancyCount}
                 </span>
               )}
             </button>

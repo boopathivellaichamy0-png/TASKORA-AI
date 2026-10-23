@@ -40,8 +40,10 @@ export interface StageRecord {
   qty_passed: number;
   qty_rejected: number;
   qty_missing: number;
+  qty_surplus?: number; // Surplus when received > expected
   rejection_reason?: string;
   missing_reason?: string;
+  surplus_reason?: string;
   remarks?: string;
 
   // Stage-specific fields
@@ -60,4 +62,21 @@ export interface DefectOption {
   stage: ProductionStage;
   category: string;
   reasons: string[];
+}
+
+export interface DiscrepancyReport {
+  id: string;
+  batch_no: string;
+  stage_name: ProductionStage;
+  current_operator: string;
+  previous_stage: ProductionStage | 'Planning Master';
+  previous_operator: string;
+  type: 'Surplus (Received More)' | 'Shortage (Received Less)';
+  expected_qty: number;
+  counted_qty: number;
+  variance_qty: number; // e.g. +8 or -5
+  message: string;
+  status: 'Reported to Admin' | 'Under Investigation' | 'Resolved by Admin';
+  reported_at: string;
+  admin_resolution?: string;
 }
