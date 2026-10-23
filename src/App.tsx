@@ -19,6 +19,7 @@ import { ModuleBatchDashboard } from './components/ModuleBatchDashboard';
 import { ModuleReports } from './components/ModuleReports';
 import { ModuleMasterData } from './components/ModuleMasterData';
 import { AlertsDrawer } from './components/AlertsDrawer';
+import { SynapseLanding } from './components/SynapseLanding';
 
 export function App() {
   const [products, setProducts] = useState<Product[]>(getStoredProducts);
@@ -27,7 +28,7 @@ export function App() {
   const [discrepancies, setDiscrepancies] = useState<DiscrepancyReport[]>(getStoredDiscrepancies);
   const [selectedBatchNo, setSelectedBatchNo] = useState<string>(() => batches[0]?.batch_no || 'BATCH-2026-001');
   const [currentRole, setCurrentRole] = useState<UserRole>('Admin');
-  const [activeTab, setActiveTab] = useState<'tracker' | 'dashboard' | 'master' | 'reports'>('tracker');
+  const [activeTab, setActiveTab] = useState<'synapse' | 'tracker' | 'dashboard' | 'master' | 'reports'>('synapse');
   const [isAlertsOpen, setIsAlertsOpen] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'alert' } | null>(null);
 
@@ -168,6 +169,16 @@ export function App() {
       setTimeout(() => setNotification(null), 4000);
     }
   };
+
+  if (activeTab === 'synapse') {
+    return (
+      <SynapseLanding
+        onLaunchTracker={() => setActiveTab('tracker')}
+        onOpenDashboard={() => setActiveTab('dashboard')}
+        onOpenReports={() => setActiveTab('reports')}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FAFAF7] text-stone-900 flex flex-col font-sans">

@@ -20,8 +20,8 @@ interface NavbarProps {
   alertCount: number;
   discrepancyCount?: number;
   onOpenAlerts: () => void;
-  activeTab: 'tracker' | 'dashboard' | 'master' | 'reports';
-  onTabChange: (tab: 'tracker' | 'dashboard' | 'master' | 'reports') => void;
+  activeTab: 'synapse' | 'tracker' | 'dashboard' | 'master' | 'reports';
+  onTabChange: (tab: 'synapse' | 'tracker' | 'dashboard' | 'master' | 'reports') => void;
 }
 
 const ROLES: UserRole[] = ['Admin', 'Stage Supervisor', 'Operator', 'QC Inspector', 'Viewer'];
@@ -99,6 +99,17 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Desktop Nav Tabs */}
             <nav className="hidden md:flex items-center space-x-1 bg-stone-100/80 p-1 rounded-xl border border-stone-200/80">
+              <button
+                onClick={() => onTabChange('synapse')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-150 cursor-pointer flex items-center space-x-1.5 ${
+                  activeTab === 'synapse'
+                    ? 'bg-stone-900 text-white shadow-xs font-semibold'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-[#8B5CF6] to-[#06B6D4]" />
+                <span>Synapse OS</span>
+              </button>
               <button
                 onClick={() => onTabChange('tracker')}
                 className={`px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-150 cursor-pointer ${
@@ -217,7 +228,21 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* NATIVE APP MOBILE BOTTOM NAVIGATION BAR */}
       <nav aria-label="Mobile Navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200 pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-2px_10px_rgba(0,0,0,0.04)]">
-        <div className="grid grid-cols-4 h-15">
+        <div className="grid grid-cols-5 h-15">
+          <button
+            onClick={() => onTabChange('synapse')}
+            className={`flex flex-col items-center justify-center space-y-1 transition-all duration-100 active:scale-95 cursor-pointer ${
+              activeTab === 'synapse'
+                ? 'text-stone-950 font-bold'
+                : 'text-stone-500 hover:text-stone-800'
+            }`}
+          >
+            <div className={`p-1 rounded-md transition-colors ${activeTab === 'synapse' ? 'bg-stone-900 text-white' : ''}`}>
+              <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-[#8B5CF6] to-[#06B6D4] mx-auto" />
+            </div>
+            <span className="text-[10px] tracking-tight">Synapse</span>
+          </button>
+
           <button
             onClick={() => onTabChange('tracker')}
             className={`flex flex-col items-center justify-center space-y-1 transition-all duration-100 active:scale-95 cursor-pointer ${
