@@ -12,10 +12,7 @@ import {
   UserCheck, 
   TrendingUp, 
   Calendar,
-  Layers,
-  ChevronRight,
-  ShieldCheck,
-  CheckCircle2
+  Layers
 } from 'lucide-react';
 
 interface ModuleReportsProps {
@@ -40,7 +37,6 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
   onSelectBatch
 }) => {
   const [activeReport, setActiveReport] = useState<ReportType>('progress');
-  // Default scope to 'selected' as requested by the user
   const [reportScope, setReportScope] = useState<'selected' | 'all'>('selected');
   const [searchTerm, setSearchTerm] = useState('');
   const [stageFilter, setStageFilter] = useState<string>('ALL');
@@ -48,7 +44,6 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
   const activeBatch = batches.find(b => b.batch_no === selectedBatchNo) || batches[0];
   const activeBatchMetrics = activeBatch ? getBatchSummaryMetrics(activeBatch, records) : null;
 
-  // Filter records based on selected batch scope or all
   const filteredRecordsByScope = records.filter(r => {
     if (reportScope === 'selected' && activeBatch) {
       return r.batch_no === activeBatch.batch_no;
@@ -56,7 +51,6 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
     return true;
   });
 
-  // Export table to CSV
   const exportToCSV = (filename: string, rows: (string | number)[][], headers: string[]) => {
     const csvContent = [
       headers.join(','),
@@ -73,19 +67,16 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
     document.body.removeChild(link);
   };
 
-  // 1. Missing Pieces Records
   const missingRecords = filteredRecordsByScope.filter(r => r.qty_missing > 0 && 
     (stageFilter === 'ALL' || r.stage_name === stageFilter) &&
     (searchTerm === '' || r.batch_no.toLowerCase().includes(searchTerm.toLowerCase()) || (r.missing_reason || '').toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  // 2. Rejection Records
   const rejectionRecords = filteredRecordsByScope.filter(r => r.qty_rejected > 0 &&
     (stageFilter === 'ALL' || r.stage_name === stageFilter) &&
     (searchTerm === '' || r.batch_no.toLowerCase().includes(searchTerm.toLowerCase()) || (r.rejection_reason || '').toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  // 5. Operator Aggregation
   const operatorStats = React.useMemo(() => {
     const map: Record<string, { name: string; stagesHandled: number; totalPassed: number; totalRejected: number; totalMissing: number; stagesList: string[] }> = {};
     filteredRecordsByScope.forEach(r => {
@@ -104,7 +95,6 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
     return Object.values(map).sort((a, b) => b.totalMissing + b.totalRejected - (a.totalMissing + a.totalRejected));
   }, [filteredRecordsByScope]);
 
-  // 6. Daily / Stage Throughput Aggregation
   const stageThroughput = React.useMemo(() => {
     const map: Record<ProductionStage, { received: number; passed: number; rejected: number; missing: number; count: number; operator: string }> = {
       Cutting: { received: 0, passed: 0, rejected: 0, missing: 0, count: 0, operator: '—' },
@@ -131,34 +121,34 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Header & Scope Controls */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+      <div className="bg-white border border-stone-200 rounded-xl p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
           <div>
             <div className="flex items-center gap-2">
-              <FileText className="w-5 h-5 text-indigo-400" />
-              <h2 className="text-xl font-bold text-white">
+              <FileText className="w-5 h-5 text-indigo-700" />
+              <h2 className="text-base font-bold text-stone-900">
                 Production Loss & Audit Reports
               </h2>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Inspecting stage handoffs, missing explanations, and operator accountability for{' '}
-              <strong className="text-indigo-300">
+            <p className="text-xs text-stone-500 mt-0.5">
+              Auditing stage handoffs, missing explanations, and operator accountability for{' '}
+              <strong className="text-stone-900">
                 {reportScope === 'selected' && activeBatch ? `${activeBatch.batch_no} (${activeBatch.product_name})` : 'All Batches'}
               </strong>
             </p>
           </div>
 
           {/* Scope Switcher & Print */}
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             {/* Toggle: Selected Batch vs All Batches */}
-            <div className="bg-slate-950 p-1 rounded-xl border border-slate-800 flex items-center">
+            <div className="bg-stone-100 p-1 rounded-lg border border-stone-200 flex items-center">
               <button
                 type="button"
                 onClick={() => setReportScope('selected')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
                   reportScope === 'selected'
-                    ? 'bg-indigo-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-white text-stone-900 shadow-xs'
+                    : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
                 Selected Batch
@@ -166,10 +156,10 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
               <button
                 type="button"
                 onClick={() => setReportScope('all')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
                   reportScope === 'all'
-                    ? 'bg-indigo-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-white text-stone-900 shadow-xs'
+                    : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
                 All Batches
@@ -182,11 +172,11 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
                 aria-label="Select Batch for Audit Report"
                 value={selectedBatchNo}
                 onChange={(e) => onSelectBatch(e.target.value)}
-                className="bg-slate-950 text-slate-100 font-semibold text-xs rounded-xl border border-slate-700 px-3 py-2 focus:border-indigo-500 focus:outline-none cursor-pointer"
+                className="bg-stone-50 hover:bg-stone-100 text-stone-900 font-semibold text-xs rounded-lg border border-stone-300 px-3 py-1.5 focus:border-indigo-600 focus:outline-none cursor-pointer"
               >
                 {batches.map((b) => (
-                  <option key={b.batch_no} value={b.batch_no} className="bg-slate-900">
-                    {b.batch_no} - {b.product_name}
+                  <option key={b.batch_no} value={b.batch_no} className="bg-white text-stone-900">
+                    {b.batch_no} — {b.product_name}
                   </option>
                 ))}
               </select>
@@ -194,9 +184,9 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
 
             <button
               onClick={() => window.print()}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-stone-50 text-stone-700 text-xs font-semibold border border-stone-200 transition-colors shadow-xs cursor-pointer"
             >
-              <Printer className="w-4 h-4" />
+              <Printer className="w-3.5 h-3.5 text-stone-500" />
               <span>Print / PDF</span>
             </button>
           </div>
@@ -204,44 +194,44 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
 
         {/* Selected Batch Scope Info Banner */}
         {reportScope === 'selected' && activeBatch && activeBatchMetrics && (
-          <div className="mb-4 bg-slate-950/90 border border-indigo-900/40 rounded-xl p-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="mb-4 bg-stone-50 border border-stone-200 rounded-lg p-3 flex flex-wrap items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2">
-              <span className="font-mono font-bold text-indigo-400 bg-indigo-950/80 px-2.5 py-1 rounded border border-indigo-800">
+              <span className="font-mono font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
                 {activeBatch.batch_no}
               </span>
-              <span className="text-slate-300 font-semibold">{activeBatch.product_name}</span>
-              <span className="text-slate-400">({activeBatch.color} / {activeBatch.size})</span>
+              <span className="text-stone-900 font-semibold">{activeBatch.product_name}</span>
+              <span className="text-stone-500">({activeBatch.color} / {activeBatch.size})</span>
             </div>
 
             <div className="flex items-center gap-4 text-xs">
               <div>
-                <span className="text-slate-500">Planned:</span>{' '}
-                <strong className="text-amber-300">{activeBatch.total_planned_qty} pcs</strong>
+                <span className="text-stone-500">Planned:</span>{' '}
+                <strong className="text-stone-900">{activeBatch.total_planned_qty} pcs</strong>
               </div>
               <div>
-                <span className="text-slate-500">Output:</span>{' '}
-                <strong className="text-emerald-400">{activeBatchMetrics.finalPassedOutput} pcs</strong>
+                <span className="text-stone-500">Output:</span>{' '}
+                <strong className="text-emerald-700">{activeBatchMetrics.finalPassedOutput} pcs</strong>
               </div>
               <div>
-                <span className="text-slate-500">Defects:</span>{' '}
-                <strong className="text-amber-400">{activeBatchMetrics.totalRejected}</strong>
+                <span className="text-stone-500">Defects:</span>{' '}
+                <strong className="text-amber-700">{activeBatchMetrics.totalRejected}</strong>
               </div>
               <div>
-                <span className="text-slate-500">Missing:</span>{' '}
-                <strong className={activeBatchMetrics.totalMissing > 0 ? 'text-rose-400' : 'text-slate-400'}>
+                <span className="text-stone-500">Missing:</span>{' '}
+                <strong className={activeBatchMetrics.totalMissing > 0 ? 'text-rose-700' : 'text-stone-400'}>
                   {activeBatchMetrics.totalMissing}
                 </strong>
               </div>
               <div>
-                <span className="text-slate-500">Yield:</span>{' '}
-                <strong className="text-indigo-300">{activeBatchMetrics.efficiency}%</strong>
+                <span className="text-stone-500">Yield:</span>{' '}
+                <strong className="text-indigo-700">{activeBatchMetrics.efficiency}%</strong>
               </div>
             </div>
           </div>
         )}
 
         {/* Report Selector Pills */}
-        <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-800">
+        <div className="flex flex-wrap gap-2 pt-2 border-t border-stone-200">
           {[
             { id: 'progress', label: '1. Batch Progress', icon: Layers },
             { id: 'missing', label: '2. Missing Pieces Log', icon: AlertTriangle },
@@ -256,10 +246,10 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
               <button
                 key={item.id}
                 onClick={() => setActiveReport(item.id as ReportType)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
-                    : 'bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800'
+                    ? 'bg-indigo-700 text-white shadow-xs'
+                    : 'bg-stone-50 hover:bg-stone-100 text-stone-700 border border-stone-200'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -272,24 +262,24 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
 
       {/* Search / Filter bar for missing and rejection reports */}
       {(activeReport === 'missing' || activeReport === 'rejections') && (
-        <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-xl flex flex-wrap items-center gap-3">
+        <div className="bg-white border border-stone-200 p-3.5 rounded-xl shadow-xs flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="w-4 h-4 absolute left-3 top-3 text-slate-500" />
+            <Search className="w-4 h-4 absolute left-3 top-2.5 text-stone-400" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by defect keyword or explanation..."
-              className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+              className="w-full pl-9 pr-3 py-1.5 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-900 focus:outline-none focus:border-indigo-600 focus:bg-white"
             />
           </div>
 
           <div className="flex items-center gap-2 text-xs">
-            <span className="text-slate-400">Filter Stage:</span>
+            <span className="text-stone-500">Filter Stage:</span>
             <select
               value={stageFilter}
               onChange={(e) => setStageFilter(e.target.value)}
-              className="bg-slate-950 text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1.5 focus:outline-none cursor-pointer"
+              className="bg-stone-50 text-stone-800 border border-stone-200 rounded-lg px-2.5 py-1.5 focus:outline-none cursor-pointer"
             >
               <option value="ALL">All Stages</option>
               {STAGES_LIST.map((s) => (
@@ -300,19 +290,19 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
         </div>
       )}
 
-      {/* REPORT 1: BATCH PROGRESS REPORT (SCOPED OR ALL) */}
+      {/* REPORT 1: BATCH PROGRESS REPORT */}
       {activeReport === 'progress' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
-          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div className="bg-white border border-stone-200 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
+          <div className="p-4 border-b border-stone-200 flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-slate-100 text-sm">
+              <h3 className="font-bold text-stone-900 text-sm">
                 {reportScope === 'selected' && activeBatch 
                   ? `Stage-by-Stage Progress Audit: ${activeBatch.batch_no} (${activeBatch.product_name})`
                   : 'Batch Progress & Stage Handoff Report (All Batches)'}
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-stone-500">
                 {reportScope === 'selected'
-                  ? 'Detailed audit tracking input, output, defects, and shortages for each sequential stage.'
+                  ? 'Audit tracking input, output, defects, and shortages for each sequential stage.'
                   : 'Overview across all manufacturing orders.'}
               </p>
             </div>
@@ -357,18 +347,17 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
                   exportToCSV('batch-progress-all', rows, headers);
                 }
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-700 hover:bg-indigo-800 text-white rounded-lg text-xs font-semibold shadow-xs cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Export CSV</span>
             </button>
           </div>
 
-          {/* If Selected Batch Mode: Show deep stage-by-stage table for this batch */}
           {reportScope === 'selected' && activeBatch ? (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-950 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                <thead className="bg-stone-50 text-stone-500 uppercase tracking-wider border-b border-stone-200">
                   <tr>
                     <th className="p-3">Stage</th>
                     <th className="p-3">Date & Time</th>
@@ -378,39 +367,39 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
                     <th className="p-3 text-right">Defective</th>
                     <th className="p-3 text-right">Missing</th>
                     <th className="p-3 text-center">Status</th>
-                    <th className="p-3">Logged Explanation / Audit</th>
+                    <th className="p-3">Audit Details</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800">
+                <tbody className="divide-y divide-stone-100">
                   {STAGES_LIST.map((stage) => {
                     const rec = filteredRecordsByScope.find(r => r.stage_name === stage);
                     const isCurrent = activeBatch.current_stage === stage;
                     const statusColor = rec ? getStatusColor(rec.qty_missing, rec.qty_received) : 'green';
 
                     return (
-                      <tr key={stage} className={`hover:bg-slate-800/40 ${isCurrent ? 'bg-indigo-950/20' : ''}`}>
-                        <td className="p-3 font-bold text-slate-100 flex items-center gap-1.5">
-                          <span className="w-2 h-2 rounded-full bg-indigo-400"></span>
+                      <tr key={stage} className={`hover:bg-stone-50/70 ${isCurrent ? 'bg-indigo-50/20' : ''}`}>
+                        <td className="p-3 font-bold text-stone-900 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
                           <span>{stage}</span>
                         </td>
-                        <td className="p-3 text-slate-400">
+                        <td className="p-3 text-stone-500">
                           {rec ? `${rec.date} (${rec.time_in})` : '—'}
                         </td>
-                        <td className="p-3 text-slate-200">
-                          {rec ? rec.operator_name : isCurrent ? <span className="text-amber-400">Pending Assignment</span> : '—'}
+                        <td className="p-3 text-stone-800 font-medium">
+                          {rec ? rec.operator_name : isCurrent ? <span className="text-amber-700">Pending Assignment</span> : '—'}
                         </td>
-                        <td className="p-3 text-right font-medium text-slate-300">
+                        <td className="p-3 text-right font-medium text-stone-600">
                           {rec ? rec.qty_received : isCurrent ? 'Auto-fed' : '—'}
                         </td>
-                        <td className="p-3 text-right font-bold text-emerald-400">
+                        <td className="p-3 text-right font-bold text-emerald-700">
                           {rec ? rec.qty_passed : '—'}
                         </td>
-                        <td className="p-3 text-right font-bold text-amber-400">
+                        <td className="p-3 text-right font-bold text-amber-700">
                           {rec ? rec.qty_rejected : '—'}
                         </td>
                         <td className="p-3 text-right font-extrabold">
                           {rec ? (
-                            <span className={rec.qty_missing > 0 ? 'text-rose-400' : 'text-slate-400'}>
+                            <span className={rec.qty_missing > 0 ? 'text-rose-700' : 'text-stone-400'}>
                               {rec.qty_missing}
                             </span>
                           ) : '—'}
@@ -418,39 +407,39 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
                         <td className="p-3 text-center">
                           {rec ? (
                             statusColor === 'green' ? (
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                 Perfect (0)
                               </span>
                             ) : statusColor === 'yellow' ? (
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-950 text-amber-400 border border-amber-800">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
                                 &le; 2% loss
                               </span>
                             ) : (
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-950 text-rose-400 border border-rose-800">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
                                 High Loss
                               </span>
                             )
                           ) : isCurrent ? (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-950 text-amber-400 border border-amber-800 animate-pulse">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
                               In Progress
                             </span>
                           ) : (
-                            <span className="text-slate-500">Pending</span>
+                            <span className="text-stone-400">Pending</span>
                           )}
                         </td>
-                        <td className="p-3 max-w-xs text-slate-300">
+                        <td className="p-3 max-w-xs text-stone-700">
                           {rec?.missing_reason ? (
-                            <div className="text-rose-300 bg-rose-950/60 p-1.5 rounded border border-rose-900/60">
+                            <div className="text-rose-800 bg-rose-50 p-1.5 rounded border border-rose-200">
                               Shortage: {rec.missing_reason}
                             </div>
                           ) : rec?.rejection_reason ? (
-                            <div className="text-amber-300 bg-amber-950/60 p-1.5 rounded border border-amber-900/60">
+                            <div className="text-amber-800 bg-amber-50 p-1.5 rounded border border-amber-200">
                               Defect: {rec.rejection_reason}
                             </div>
                           ) : rec?.remarks ? (
-                            <div className="text-slate-400 italic">{rec.remarks}</div>
+                            <div className="text-stone-500 italic">{rec.remarks}</div>
                           ) : (
-                            <span className="text-slate-600">—</span>
+                            <span className="text-stone-400">—</span>
                           )}
                         </td>
                       </tr>
@@ -460,10 +449,9 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
               </table>
             </div>
           ) : (
-            /* All Batches Multi-table */
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-950 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                <thead className="bg-stone-50 text-stone-500 uppercase tracking-wider border-b border-stone-200">
                   <tr>
                     <th className="p-3">Batch No</th>
                     <th className="p-3">Garment</th>
@@ -474,41 +462,41 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
                     <th className="p-3 text-right">QC</th>
                     <th className="p-3 text-right">Finishing</th>
                     <th className="p-3 text-right">Packing (Final)</th>
-                    <th className="p-3 text-right">Efficiency</th>
+                    <th className="p-3 text-right">Yield</th>
                     <th className="p-3 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800">
+                <tbody className="divide-y divide-stone-100">
                   {batches.map((b) => {
                     const m = getBatchSummaryMetrics(b, records);
                     const bRecs = records.filter(r => r.batch_no === b.batch_no);
                     return (
-                      <tr key={b.batch_no} className="hover:bg-slate-800/40">
-                        <td className="p-3 font-bold text-indigo-400">{b.batch_no}</td>
-                        <td className="p-3 text-slate-200">{b.product_name} ({b.color} / {b.size})</td>
-                        <td className="p-3 text-right font-bold text-white">{b.total_planned_qty}</td>
+                      <tr key={b.batch_no} className="hover:bg-stone-50/70">
+                        <td className="p-3 font-bold text-indigo-700">{b.batch_no}</td>
+                        <td className="p-3 text-stone-800 font-medium">{b.product_name} ({b.color} / {b.size})</td>
+                        <td className="p-3 text-right font-bold text-stone-900">{b.total_planned_qty}</td>
                         <td className="p-3 text-center">
                           <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            b.status === 'Completed' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-indigo-950 text-indigo-300 border border-indigo-800'
+                            b.status === 'Completed' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
                           }`}>
                             {b.current_stage}
                           </span>
                         </td>
-                        <td className="p-3 text-right text-slate-300">{bRecs.find(r => r.stage_name === 'Cutting')?.qty_passed ?? '—'}</td>
-                        <td className="p-3 text-right text-slate-300">{bRecs.find(r => r.stage_name === 'Stitching')?.qty_passed ?? '—'}</td>
-                        <td className="p-3 text-right text-slate-300">{bRecs.find(r => r.stage_name === 'QC')?.qty_passed ?? '—'}</td>
-                        <td className="p-3 text-right text-slate-300">{bRecs.find(r => r.stage_name === 'Finishing')?.qty_passed ?? '—'}</td>
-                        <td className="p-3 text-right font-bold text-emerald-400">{bRecs.find(r => r.stage_name === 'Packing')?.qty_passed ?? '—'}</td>
-                        <td className="p-3 text-right font-extrabold text-indigo-300">{m.efficiency}%</td>
+                        <td className="p-3 text-right text-stone-600">{bRecs.find(r => r.stage_name === 'Cutting')?.qty_passed ?? '—'}</td>
+                        <td className="p-3 text-right text-stone-600">{bRecs.find(r => r.stage_name === 'Stitching')?.qty_passed ?? '—'}</td>
+                        <td className="p-3 text-right text-stone-600">{bRecs.find(r => r.stage_name === 'QC')?.qty_passed ?? '—'}</td>
+                        <td className="p-3 text-right text-stone-600">{bRecs.find(r => r.stage_name === 'Finishing')?.qty_passed ?? '—'}</td>
+                        <td className="p-3 text-right font-bold text-emerald-700">{bRecs.find(r => r.stage_name === 'Packing')?.qty_passed ?? '—'}</td>
+                        <td className="p-3 text-right font-extrabold text-indigo-800">{m.efficiency}%</td>
                         <td className="p-3 text-right">
                           <button
                             onClick={() => {
                               onSelectBatch(b.batch_no);
                               setReportScope('selected');
                             }}
-                            className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold"
+                            className="text-xs text-indigo-700 hover:text-indigo-900 font-semibold cursor-pointer"
                           >
-                            Focus Batch &rarr;
+                            Inspect &rarr;
                           </button>
                         </td>
                       </tr>
@@ -523,18 +511,18 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
 
       {/* REPORT 2: MISSING PIECES REPORT */}
       {activeReport === 'missing' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
-          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div className="bg-white border border-stone-200 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
+          <div className="p-4 border-b border-stone-200 flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-rose-300 text-sm flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-rose-400" />
+              <h3 className="font-bold text-rose-900 text-sm flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-rose-600" />
                 <span>
                   {reportScope === 'selected' && activeBatch 
                     ? `Missing Pieces Log for ${activeBatch.batch_no}` 
                     : 'Missing Pieces Log (All Batches)'}
                 </span>
               </h3>
-              <p className="text-xs text-slate-400">Strict mandatory explanations captured at every station handoff.</p>
+              <p className="text-xs text-stone-500">Documented explanations captured during handoff.</p>
             </div>
             <button
               onClick={() => {
@@ -549,7 +537,7 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
                 ]);
                 exportToCSV('missing-pieces-report', rows, headers);
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-semibold"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-semibold cursor-pointer shadow-xs"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Export CSV</span>
@@ -557,33 +545,33 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-950 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+              <thead className="bg-stone-50 text-stone-500 uppercase tracking-wider border-b border-stone-200">
                 <tr>
                   <th className="p-3">Batch No</th>
                   <th className="p-3">Stage</th>
                   <th className="p-3">Date</th>
                   <th className="p-3 text-right">Missing Qty</th>
                   <th className="p-3">Operator</th>
-                  <th className="p-3">Documented Reason (Mandatory Explanation)</th>
+                  <th className="p-3">Documented Reason</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800">
+              <tbody className="divide-y divide-stone-100">
                 {missingRecords.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="p-6 text-center text-slate-500">
-                      No missing pieces recorded for this scope. Zero shortages detected!
+                    <td colSpan={6} className="p-6 text-center text-stone-400">
+                      Zero missing pieces recorded for this scope.
                     </td>
                   </tr>
                 ) : (
                   missingRecords.map((r) => (
-                    <tr key={r.id} className="hover:bg-rose-950/20">
-                      <td className="p-3 font-bold text-slate-100">{r.batch_no}</td>
-                      <td className="p-3 font-semibold text-indigo-400">{r.stage_name}</td>
-                      <td className="p-3 text-slate-400">{r.date}</td>
-                      <td className="p-3 text-right font-extrabold text-rose-400">{r.qty_missing} pcs</td>
-                      <td className="p-3 text-slate-300">{r.operator_name}</td>
+                    <tr key={r.id} className="hover:bg-rose-50/40">
+                      <td className="p-3 font-bold text-stone-900">{r.batch_no}</td>
+                      <td className="p-3 font-semibold text-indigo-700">{r.stage_name}</td>
+                      <td className="p-3 text-stone-500">{r.date}</td>
+                      <td className="p-3 text-right font-extrabold text-rose-700">{r.qty_missing} pcs</td>
+                      <td className="p-3 text-stone-800 font-medium">{r.operator_name}</td>
                       <td className="p-3">
-                        <span className="bg-rose-950/60 px-2.5 py-1 rounded text-rose-200 border border-rose-900/60 font-medium">
+                        <span className="bg-rose-50 px-2 py-1 rounded text-rose-900 border border-rose-200 font-medium">
                           {r.missing_reason}
                         </span>
                       </td>
@@ -598,18 +586,18 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
 
       {/* REPORT 3: REJECTION & SCRAP REPORT */}
       {activeReport === 'rejections' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
-          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div className="bg-white border border-stone-200 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
+          <div className="p-4 border-b border-stone-200 flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-amber-300 text-sm flex items-center gap-2">
-                <Filter className="w-4 h-4 text-amber-400" />
+              <h3 className="font-bold text-amber-900 text-sm flex items-center gap-2">
+                <Filter className="w-4 h-4 text-amber-700" />
                 <span>
                   {reportScope === 'selected' && activeBatch 
                     ? `Defect & Scrap Log for ${activeBatch.batch_no}` 
                     : 'Defect & Scrap Log (All Batches)'}
                 </span>
               </h3>
-              <p className="text-xs text-slate-400">Classified defects by stage, defect type, and root cause.</p>
+              <p className="text-xs text-stone-500">Defects categorized by stage and root cause.</p>
             </div>
             <button
               onClick={() => {
@@ -625,7 +613,7 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
                 ]);
                 exportToCSV('rejection-report', rows, headers);
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-semibold"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold cursor-pointer shadow-xs"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Export CSV</span>
@@ -633,7 +621,7 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-950 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+              <thead className="bg-stone-50 text-stone-500 uppercase tracking-wider border-b border-stone-200">
                 <tr>
                   <th className="p-3">Batch No</th>
                   <th className="p-3">Stage</th>
@@ -641,26 +629,26 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
                   <th className="p-3 text-right">Rejected Qty</th>
                   <th className="p-3">Defect Category</th>
                   <th className="p-3">Operator</th>
-                  <th className="p-3">Rejection Reason & Description</th>
+                  <th className="p-3">Rejection Reason</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800">
+              <tbody className="divide-y divide-stone-100">
                 {rejectionRecords.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="p-6 text-center text-slate-500">
-                      No rejected or defective pieces recorded for this scope.
+                    <td colSpan={7} className="p-6 text-center text-stone-400">
+                      No defective pieces recorded for this scope.
                     </td>
                   </tr>
                 ) : (
                   rejectionRecords.map((r) => (
-                    <tr key={r.id} className="hover:bg-amber-950/20">
-                      <td className="p-3 font-bold text-slate-100">{r.batch_no}</td>
-                      <td className="p-3 font-semibold text-indigo-400">{r.stage_name}</td>
-                      <td className="p-3 text-slate-400">{r.date}</td>
-                      <td className="p-3 text-right font-extrabold text-amber-400">{r.qty_rejected} pcs</td>
-                      <td className="p-3 text-amber-300 font-medium">{r.defect_type || 'General Defect'}</td>
-                      <td className="p-3 text-slate-300">{r.operator_name}</td>
-                      <td className="p-3 text-slate-200">{r.rejection_reason}</td>
+                    <tr key={r.id} className="hover:bg-amber-50/40">
+                      <td className="p-3 font-bold text-stone-900">{r.batch_no}</td>
+                      <td className="p-3 font-semibold text-indigo-700">{r.stage_name}</td>
+                      <td className="p-3 text-stone-500">{r.date}</td>
+                      <td className="p-3 text-right font-extrabold text-amber-700">{r.qty_rejected} pcs</td>
+                      <td className="p-3 text-stone-800 font-medium">{r.defect_type || 'General Defect'}</td>
+                      <td className="p-3 text-stone-700">{r.operator_name}</td>
+                      <td className="p-3 text-stone-700">{r.rejection_reason}</td>
                     </tr>
                   ))
                 )}
@@ -672,9 +660,9 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
 
       {/* REPORT 4: PRODUCTION EFFICIENCY REPORT */}
       {activeReport === 'efficiency' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
-          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-            <h3 className="font-bold text-indigo-300 text-sm">
+        <div className="bg-white border border-stone-200 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
+          <div className="p-4 border-b border-stone-200 flex items-center justify-between">
+            <h3 className="font-bold text-stone-900 text-sm">
               {reportScope === 'selected' && activeBatch 
                 ? `Yield Efficiency for ${activeBatch.batch_no}` 
                 : 'Batch Production Efficiency vs Planned Master'}
@@ -698,7 +686,7 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
                 });
                 exportToCSV('production-efficiency-report', rows, headers);
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-700 hover:bg-indigo-800 text-white rounded-lg text-xs font-semibold cursor-pointer shadow-xs"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Export CSV</span>
@@ -706,37 +694,37 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-950 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+              <thead className="bg-stone-50 text-stone-500 uppercase tracking-wider border-b border-stone-200">
                 <tr>
                   <th className="p-3">Batch No</th>
                   <th className="p-3">Garment</th>
                   <th className="p-3 text-right">Planned Master</th>
                   <th className="p-3 text-right">Output Passed</th>
-                  <th className="p-3 text-right">Total Lost (Scrap+Missing)</th>
+                  <th className="p-3 text-right">Total Lost</th>
                   <th className="p-3 text-right">Loss Rate</th>
-                  <th className="p-3 text-right">Overall Efficiency</th>
+                  <th className="p-3 text-right">Yield Efficiency</th>
                   <th className="p-3 text-center">Benchmark</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800">
+              <tbody className="divide-y divide-stone-100">
                 {(reportScope === 'selected' && activeBatch ? [activeBatch] : batches).map((b) => {
                   const m = getBatchSummaryMetrics(b, records);
                   return (
-                    <tr key={b.batch_no} className="hover:bg-slate-800/40">
-                      <td className="p-3 font-bold text-slate-100">{b.batch_no}</td>
-                      <td className="p-3 text-slate-300">{b.product_name}</td>
-                      <td className="p-3 text-right font-bold text-amber-300">{m.planned}</td>
-                      <td className="p-3 text-right font-bold text-emerald-400">{m.finalPassedOutput}</td>
-                      <td className="p-3 text-right font-bold text-rose-400">{m.totalLoss} pcs</td>
-                      <td className="p-3 text-right font-semibold text-rose-300">{m.lossPercentage}%</td>
-                      <td className="p-3 text-right font-extrabold text-base text-indigo-300">{m.efficiency}%</td>
+                    <tr key={b.batch_no} className="hover:bg-stone-50/70">
+                      <td className="p-3 font-bold text-stone-900">{b.batch_no}</td>
+                      <td className="p-3 text-stone-700">{b.product_name}</td>
+                      <td className="p-3 text-right font-bold text-stone-900">{m.planned}</td>
+                      <td className="p-3 text-right font-bold text-emerald-700">{m.finalPassedOutput}</td>
+                      <td className="p-3 text-right font-bold text-rose-700">{m.totalLoss} pcs</td>
+                      <td className="p-3 text-right font-semibold text-rose-700">{m.lossPercentage}%</td>
+                      <td className="p-3 text-right font-extrabold text-sm text-indigo-900">{m.efficiency}%</td>
                       <td className="p-3 text-center">
                         {m.efficiency >= 90 ? (
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
                             Excellent Yield (&gt;=90%)
                           </span>
                         ) : (
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-950 text-rose-300 border border-rose-800">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-800 border border-rose-200">
                             High Variance (&lt;90%)
                           </span>
                         )}
@@ -752,15 +740,15 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
 
       {/* REPORT 5: OPERATOR PERFORMANCE REPORT */}
       {activeReport === 'operators' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
-          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div className="bg-white border border-stone-200 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
+          <div className="p-4 border-b border-stone-200 flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-slate-100 text-sm">
+              <h3 className="font-bold text-stone-900 text-sm">
                 {reportScope === 'selected' && activeBatch 
                   ? `Operator Accountability for ${activeBatch.batch_no}` 
                   : 'Operator Performance & Scrap Rate Analysis (All Batches)'}
               </h3>
-              <p className="text-xs text-slate-400">Total pieces passed vs defect and missing pieces per operator.</p>
+              <p className="text-xs text-stone-500">Pieces passed vs defects and missing under each operator.</p>
             </div>
             <button
               onClick={() => {
@@ -774,7 +762,7 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
                 ]);
                 exportToCSV('operator-performance-report', rows, headers);
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-700 hover:bg-indigo-800 text-white rounded-lg text-xs font-semibold cursor-pointer shadow-xs"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Export CSV</span>
@@ -782,20 +770,20 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-950 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+              <thead className="bg-stone-50 text-stone-500 uppercase tracking-wider border-b border-stone-200">
                 <tr>
                   <th className="p-3">Operator / Station Lead</th>
                   <th className="p-3 text-center">Stages Handled</th>
                   <th className="p-3 text-right">Total Passed</th>
-                  <th className="p-3 text-right">Defective / Rejected</th>
-                  <th className="p-3 text-right">Missing Under Watch</th>
-                  <th className="p-3 text-right">Total Accountability Variance</th>
+                  <th className="p-3 text-right">Defective</th>
+                  <th className="p-3 text-right">Shortages</th>
+                  <th className="p-3 text-right">Total Variance</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800">
+              <tbody className="divide-y divide-stone-100">
                 {operatorStats.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="p-6 text-center text-slate-500">
+                    <td colSpan={6} className="p-6 text-center text-stone-400">
                       No operator records found for this scope.
                     </td>
                   </tr>
@@ -803,23 +791,23 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
                   operatorStats.map((op) => {
                     const totalLoss = op.totalRejected + op.totalMissing;
                     return (
-                      <tr key={op.name} className="hover:bg-slate-800/40">
-                        <td className="p-3 font-bold text-slate-100 flex items-center gap-2">
-                          <UserCheck className="w-4 h-4 text-indigo-400" />
+                      <tr key={op.name} className="hover:bg-stone-50/70">
+                        <td className="p-3 font-bold text-stone-900 flex items-center gap-2">
+                          <UserCheck className="w-4 h-4 text-indigo-700" />
                           <div>
                             <span>{op.name}</span>
-                            <span className="text-[10px] text-slate-500 block">({op.stagesList.join(', ')})</span>
+                            <span className="text-[10px] text-stone-500 block">({op.stagesList.join(', ')})</span>
                           </div>
                         </td>
-                        <td className="p-3 text-center text-slate-300">{op.stagesHandled}</td>
-                        <td className="p-3 text-right font-bold text-emerald-400">{op.totalPassed} pcs</td>
-                        <td className="p-3 text-right font-bold text-amber-400">{op.totalRejected} pcs</td>
-                        <td className="p-3 text-right font-bold text-rose-400">{op.totalMissing} pcs</td>
-                        <td className="p-3 text-right font-extrabold text-slate-200">
+                        <td className="p-3 text-center text-stone-600">{op.stagesHandled}</td>
+                        <td className="p-3 text-right font-bold text-emerald-700">{op.totalPassed} pcs</td>
+                        <td className="p-3 text-right font-bold text-amber-700">{op.totalRejected} pcs</td>
+                        <td className="p-3 text-right font-bold text-rose-700">{op.totalMissing} pcs</td>
+                        <td className="p-3 text-right font-extrabold text-stone-900">
                           {totalLoss > 0 ? (
-                            <span className="text-amber-300">{totalLoss} pcs</span>
+                            <span className="text-amber-800">{totalLoss} pcs</span>
                           ) : (
-                            <span className="text-emerald-400">0 variance</span>
+                            <span className="text-emerald-700">0 variance</span>
                           )}
                         </td>
                       </tr>
@@ -834,43 +822,43 @@ export const ModuleReports: React.FC<ModuleReportsProps> = ({
 
       {/* REPORT 6: DAILY / STAGE THROUGHPUT */}
       {activeReport === 'daily' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
-          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div className="bg-white border border-stone-200 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
+          <div className="p-4 border-b border-stone-200 flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-slate-100 text-sm">
+              <h3 className="font-bold text-stone-900 text-sm">
                 {reportScope === 'selected' && activeBatch 
                   ? `Stage Throughput for ${activeBatch.batch_no}` 
                   : 'Stage-wise Throughput Summary (All Batches)'}
               </h3>
-              <p className="text-xs text-slate-400">Aggregate pieces moving through Cutting, Stitching, QC, Finishing, and Packing.</p>
+              <p className="text-xs text-stone-500">Volume processed across Cutting, Stitching, QC, Finishing, and Packing.</p>
             </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-950 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+              <thead className="bg-stone-50 text-stone-500 uppercase tracking-wider border-b border-stone-200">
                 <tr>
                   <th className="p-3">Production Stage</th>
                   <th className="p-3 text-center">Stage Entries</th>
                   <th className="p-3 text-right">Total In (Received)</th>
                   <th className="p-3 text-right">Total Out (Passed)</th>
-                  <th className="p-3 text-right">Total Rejected</th>
+                  <th className="p-3 text-right">Total Defective</th>
                   <th className="p-3 text-right">Total Missing</th>
                   <th className="p-3 text-right">Stage Pass Rate</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800">
+              <tbody className="divide-y divide-stone-100">
                 {STAGES_LIST.map((stage) => {
                   const stat = stageThroughput[stage];
                   const passRate = stat.received > 0 ? ((stat.passed / stat.received) * 100).toFixed(1) : '100';
                   return (
-                    <tr key={stage} className="hover:bg-slate-800/40">
-                      <td className="p-3 font-bold text-indigo-400">{stage}</td>
-                      <td className="p-3 text-center text-slate-300">{stat.count} logged</td>
-                      <td className="p-3 text-right text-slate-200 font-semibold">{stat.received}</td>
-                      <td className="p-3 text-right text-emerald-400 font-bold">{stat.passed}</td>
-                      <td className="p-3 text-right text-amber-400 font-bold">{stat.rejected}</td>
-                      <td className="p-3 text-right text-rose-400 font-extrabold">{stat.missing}</td>
-                      <td className="p-3 text-right font-extrabold text-indigo-300">{passRate}%</td>
+                    <tr key={stage} className="hover:bg-stone-50/70">
+                      <td className="p-3 font-bold text-indigo-700">{stage}</td>
+                      <td className="p-3 text-center text-stone-600">{stat.count} logged</td>
+                      <td className="p-3 text-right text-stone-800 font-semibold">{stat.received}</td>
+                      <td className="p-3 text-right text-emerald-700 font-bold">{stat.passed}</td>
+                      <td className="p-3 text-right text-amber-700 font-bold">{stat.rejected}</td>
+                      <td className="p-3 text-right text-rose-700 font-extrabold">{stat.missing}</td>
+                      <td className="p-3 text-right font-extrabold text-indigo-900">{passRate}%</td>
                     </tr>
                   );
                 })}

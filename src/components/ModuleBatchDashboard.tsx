@@ -3,17 +3,11 @@ import { ProductionBatch, StageRecord, ProductionStage } from '../types';
 import { STAGES_LIST } from '../utils/storage';
 import { getBatchSummaryMetrics, getStatusColor } from '../utils/rules';
 import { 
-  CheckCircle2, 
-  AlertTriangle, 
+  BarChart3, 
   TrendingDown, 
   TrendingUp, 
-  BarChart3, 
-  Layers, 
-  Activity, 
   ShieldAlert, 
-  Check, 
-  ArrowRight,
-  PackageCheck
+  ArrowRight 
 } from 'lucide-react';
 
 interface ModuleBatchDashboardProps {
@@ -34,20 +28,20 @@ export const ModuleBatchDashboard: React.FC<ModuleBatchDashboardProps> = ({
     <div className="space-y-6">
       {/* High Loss Warning Alert Banner if > 5% */}
       {metrics.isHighLoss && (
-        <div className="bg-rose-950/80 border-2 border-rose-600 rounded-2xl p-4 sm:p-5 shadow-2xl flex items-start gap-4 animate-pulse">
-          <div className="p-3 bg-rose-600/30 text-rose-300 rounded-xl">
-            <ShieldAlert className="w-6 h-6" />
+        <div className="bg-rose-50 border border-rose-200 rounded-xl p-4 sm:p-5 shadow-xs flex items-start gap-3.5">
+          <div className="p-2 bg-rose-100 text-rose-700 rounded-lg shrink-0 mt-0.5">
+            <ShieldAlert className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <span>🔴 High Loss Alert Detected on {batch.batch_no}</span>
-              <span className="text-xs bg-rose-700 text-white px-2 py-0.5 rounded-full font-bold">
+            <h3 className="text-sm font-bold text-rose-950 flex items-center gap-2">
+              <span>High Loss Threshold Exceeded on {batch.batch_no}</span>
+              <span className="text-[10px] bg-rose-600 text-white px-2 py-0.5 rounded-full font-bold">
                 {metrics.lossPercentage}% Loss
               </span>
             </h3>
-            <p className="text-xs sm:text-sm text-rose-200 mt-1">
+            <p className="text-xs text-rose-800 mt-0.5">
               Total piece loss has exceeded the 5% factory tolerance limit ({metrics.totalLoss} pieces lost out of {metrics.planned} planned).
-              Audit of operator handoffs and machine tolerances required immediately.
+              Auditing of operator handoffs and workstation tallies is recommended.
             </p>
           </div>
         </div>
@@ -56,100 +50,100 @@ export const ModuleBatchDashboard: React.FC<ModuleBatchDashboardProps> = ({
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
         {/* Planned */}
-        <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-lg">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+        <div className="bg-white border border-stone-200 p-4 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider block mb-1">
             Planned Master
           </span>
-          <div className="text-2xl sm:text-3xl font-extrabold text-white">
+          <div className="text-2xl sm:text-3xl font-extrabold text-stone-900">
             {metrics.planned}
-            <span className="text-xs font-normal text-slate-400 ml-1">pcs</span>
+            <span className="text-xs font-normal text-stone-500 ml-1">pcs</span>
           </div>
-          <span className="text-[11px] text-slate-500 mt-1 block">Baseline order qty</span>
+          <span className="text-[11px] text-stone-500 mt-1 block">Baseline order qty</span>
         </div>
 
         {/* Current / Final Passed Output */}
-        <div className="bg-slate-900 border border-emerald-900/40 p-4 rounded-2xl shadow-lg">
-          <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider block mb-1">
+        <div className="bg-white border border-stone-200 p-4 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <span className="text-[11px] font-semibold text-emerald-700 uppercase tracking-wider block mb-1">
             {batch.status === 'Completed' ? 'Final Output' : 'Current Passed'}
           </span>
-          <div className="text-2xl sm:text-3xl font-extrabold text-emerald-400">
+          <div className="text-2xl sm:text-3xl font-extrabold text-emerald-700">
             {metrics.finalPassedOutput}
-            <span className="text-xs font-normal text-emerald-500/80 ml-1">pcs</span>
+            <span className="text-xs font-normal text-emerald-600 ml-1">pcs</span>
           </div>
-          <span className="text-[11px] text-emerald-500/80 mt-1 block">
-            Passed all quality checks
+          <span className="text-[11px] text-emerald-600/80 mt-1 block">
+            Passed inspection OK
           </span>
         </div>
 
         {/* Total Rejected */}
-        <div className="bg-slate-900 border border-amber-900/40 p-4 rounded-2xl shadow-lg">
-          <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider block mb-1">
-            Total Rejected
+        <div className="bg-white border border-stone-200 p-4 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <span className="text-[11px] font-semibold text-amber-700 uppercase tracking-wider block mb-1">
+            Total Defective
           </span>
-          <div className="text-2xl sm:text-3xl font-extrabold text-amber-400">
+          <div className="text-2xl sm:text-3xl font-extrabold text-amber-700">
             {metrics.totalRejected}
-            <span className="text-xs font-normal text-amber-500/80 ml-1">pcs</span>
+            <span className="text-xs font-normal text-amber-600 ml-1">pcs</span>
           </div>
-          <span className="text-[11px] text-amber-500/80 mt-1 block">
-            Defective & scrap pieces
+          <span className="text-[11px] text-amber-600/80 mt-1 block">
+            Scrapped or rework
           </span>
         </div>
 
         {/* Total Missing */}
-        <div className="bg-slate-900 border border-rose-900/40 p-4 rounded-2xl shadow-lg">
-          <span className="text-xs font-semibold text-rose-400 uppercase tracking-wider block mb-1">
-            Total Missing
+        <div className="bg-white border border-stone-200 p-4 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <span className="text-[11px] font-semibold text-rose-700 uppercase tracking-wider block mb-1">
+            Total Shortages
           </span>
-          <div className={`text-2xl sm:text-3xl font-extrabold ${metrics.totalMissing > 0 ? 'text-rose-400' : 'text-slate-400'}`}>
+          <div className={`text-2xl sm:text-3xl font-extrabold ${metrics.totalMissing > 0 ? 'text-rose-700' : 'text-stone-400'}`}>
             {metrics.totalMissing}
-            <span className="text-xs font-normal text-slate-500 ml-1">pcs</span>
+            <span className="text-xs font-normal text-stone-400 ml-1">pcs</span>
           </div>
-          <span className="text-[11px] text-rose-500/80 mt-1 block">
+          <span className="text-[11px] text-rose-600/80 mt-1 block">
             Unaccounted shortages
           </span>
         </div>
 
         {/* Overall Efficiency */}
-        <div className="bg-slate-900 border border-indigo-900/40 p-4 rounded-2xl shadow-lg col-span-2 lg:col-span-1">
-          <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wider block mb-1">
-            Batch Efficiency
+        <div className="bg-white border border-stone-200 p-4 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] col-span-2 lg:col-span-1">
+          <span className="text-[11px] font-semibold text-indigo-700 uppercase tracking-wider block mb-1">
+            Yield Efficiency
           </span>
-          <div className="text-2xl sm:text-3xl font-extrabold text-indigo-300 flex items-center gap-1.5">
+          <div className="text-2xl sm:text-3xl font-extrabold text-indigo-900 flex items-center gap-1.5">
             {metrics.efficiency}%
             {metrics.efficiency >= 90 ? (
-              <TrendingUp className="w-5 h-5 text-emerald-400" />
+              <TrendingUp className="w-5 h-5 text-emerald-600" />
             ) : (
-              <TrendingDown className="w-5 h-5 text-rose-400" />
+              <TrendingDown className="w-5 h-5 text-rose-600" />
             )}
           </div>
-          <span className="text-[11px] text-indigo-400/80 mt-1 block">
+          <span className="text-[11px] text-indigo-600/80 mt-1 block">
             Yield vs planned master
           </span>
         </div>
       </div>
 
-      {/* LIVE BATCH SUMMARY TABLE (Exact specification from Module 3) */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
-        <div className="p-4 sm:p-5 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      {/* LIVE BATCH SUMMARY TABLE */}
+      <div className="bg-white border border-stone-200 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
+        <div className="p-4 sm:p-5 border-b border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-indigo-400" />
+            <h3 className="text-base font-bold text-stone-900 flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-indigo-600" />
               <span>Live Stage Flow & Loss Summary</span>
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-stone-500">
               Comparing stage intake, output, rejections, and missing variances.
             </p>
           </div>
 
           <div className="flex items-center gap-3 text-xs">
-            <span className="flex items-center gap-1 text-emerald-400">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> 0 Missing
+            <span className="flex items-center gap-1.5 text-emerald-700 font-medium">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> 0 Missing
             </span>
-            <span className="flex items-center gap-1 text-amber-400">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> &le; 2% Loss
+            <span className="flex items-center gap-1.5 text-amber-700 font-medium">
+              <span className="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> &le; 2% Loss
             </span>
-            <span className="flex items-center gap-1 text-rose-400">
-              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> &gt; 2% Loss
+            <span className="flex items-center gap-1.5 text-rose-700 font-medium">
+              <span className="w-2 h-2 rounded-full bg-rose-500 inline-block"></span> &gt; 2% Loss
             </span>
           </div>
         </div>
@@ -157,7 +151,7 @@ export const ModuleBatchDashboard: React.FC<ModuleBatchDashboardProps> = ({
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-950/80 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
+              <tr className="bg-stone-50 text-[11px] uppercase tracking-wider text-stone-500 border-b border-stone-200">
                 <th className="py-3 px-4 font-semibold">Stage</th>
                 <th className="py-3 px-4 font-semibold text-right">Qty In</th>
                 <th className="py-3 px-4 font-semibold text-right">Qty Passed</th>
@@ -167,7 +161,7 @@ export const ModuleBatchDashboard: React.FC<ModuleBatchDashboardProps> = ({
                 <th className="py-3 px-4 font-semibold text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 text-sm">
+            <tbody className="divide-y divide-stone-100 text-xs">
               {STAGES_LIST.map((stageName) => {
                 const rec = batchRecords.find((r) => r.stage_name === stageName);
                 const isCurrent = batch.current_stage === stageName;
@@ -180,40 +174,35 @@ export const ModuleBatchDashboard: React.FC<ModuleBatchDashboardProps> = ({
                 return (
                   <tr
                     key={stageName}
-                    className={`hover:bg-slate-800/40 transition-colors ${
-                      isCurrent ? 'bg-indigo-950/20' : ''
+                    className={`hover:bg-stone-50/80 transition-colors ${
+                      isCurrent ? 'bg-indigo-50/30' : ''
                     }`}
                   >
-                    {/* Stage Name */}
-                    <td className="py-3.5 px-4 font-bold text-slate-200 flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-slate-700"></span>
+                    <td className="py-3 px-4 font-bold text-stone-900 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-stone-400"></span>
                       <span>{stageName}</span>
                       {isCurrent && (
-                        <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full">
-                          Active Line
+                        <span className="text-[10px] bg-amber-100 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full font-semibold">
+                          Active
                         </span>
                       )}
                     </td>
 
-                    {/* Qty In */}
-                    <td className="py-3.5 px-4 text-right font-medium text-slate-300">
+                    <td className="py-3 px-4 text-right font-medium text-stone-600">
                       {rec ? rec.qty_received : isCurrent ? 'Auto-loaded' : '—'}
                     </td>
 
-                    {/* Qty Passed */}
-                    <td className="py-3.5 px-4 text-right font-bold text-emerald-400">
+                    <td className="py-3 px-4 text-right font-bold text-emerald-700">
                       {rec ? rec.qty_passed : '—'}
                     </td>
 
-                    {/* Qty Rejected */}
-                    <td className="py-3.5 px-4 text-right font-bold text-amber-400">
+                    <td className="py-3 px-4 text-right font-bold text-amber-700">
                       {rec ? rec.qty_rejected : '—'}
                     </td>
 
-                    {/* Qty Missing */}
-                    <td className="py-3.5 px-4 text-right font-extrabold">
+                    <td className="py-3 px-4 text-right font-extrabold">
                       {rec ? (
-                        <span className={rec.qty_missing > 0 ? 'text-rose-400' : 'text-slate-400'}>
+                        <span className={rec.qty_missing > 0 ? 'text-rose-700' : 'text-stone-400'}>
                           {rec.qty_missing}
                         </span>
                       ) : (
@@ -221,36 +210,34 @@ export const ModuleBatchDashboard: React.FC<ModuleBatchDashboardProps> = ({
                       )}
                     </td>
 
-                    {/* Status Indicator */}
-                    <td className="py-3.5 px-4 text-center">
+                    <td className="py-3 px-4 text-center">
                       {isCompleted ? (
                         statusColor === 'green' ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                            🟢 Perfect (0 missing)
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            Perfect (0 missing)
                           </span>
                         ) : statusColor === 'yellow' ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30">
-                            🟡 Acceptable (&le;2%)
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                            Acceptable (&le;2%)
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-300 border border-rose-500/30">
-                            🔴 High Loss (&gt;2%)
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                            High Loss (&gt;2%)
                           </span>
                         )
                       ) : isCurrent ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
-                          ⏳ In Progress
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                          In Progress
                         </span>
                       ) : (
-                        <span className="text-slate-500 text-xs">⚪ Pending</span>
+                        <span className="text-stone-400 text-[11px]">Pending</span>
                       )}
                     </td>
 
-                    {/* Action link */}
-                    <td className="py-3.5 px-4 text-right">
+                    <td className="py-3 px-4 text-right">
                       <button
                         onClick={() => onSelectStageTab(stageName)}
-                        className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold inline-flex items-center gap-1"
+                        className="text-xs text-indigo-700 hover:text-indigo-900 font-semibold inline-flex items-center gap-1 cursor-pointer"
                       >
                         <span>{isCompleted ? 'View Log' : isCurrent ? 'Open Station' : 'View'}</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -262,28 +249,28 @@ export const ModuleBatchDashboard: React.FC<ModuleBatchDashboardProps> = ({
             </tbody>
 
             {/* SUMMARY FOOTER ROW */}
-            <tfoot className="bg-slate-950 font-bold border-t-2 border-slate-700 text-sm">
+            <tfoot className="bg-stone-50 font-bold border-t border-stone-200 text-xs">
               <tr>
-                <td className="py-3.5 px-4 text-slate-100">TOTAL LOSS</td>
-                <td className="py-3.5 px-4 text-right text-slate-400">—</td>
-                <td className="py-3.5 px-4 text-right text-slate-400">—</td>
-                <td className="py-3.5 px-4 text-right text-amber-400">{metrics.totalRejected}</td>
-                <td className="py-3.5 px-4 text-right text-rose-400">{metrics.totalMissing}</td>
-                <td colSpan={2} className="py-3.5 px-4 text-right text-rose-300 font-extrabold">
+                <td className="py-3 px-4 text-stone-900">TOTAL LOSS</td>
+                <td className="py-3 px-4 text-right text-stone-400">—</td>
+                <td className="py-3 px-4 text-right text-stone-400">—</td>
+                <td className="py-3 px-4 text-right text-amber-700">{metrics.totalRejected}</td>
+                <td className="py-3 px-4 text-right text-rose-700">{metrics.totalMissing}</td>
+                <td colSpan={2} className="py-3 px-4 text-right text-rose-700 font-extrabold">
                   {metrics.totalLoss} Pieces Total Lost
                 </td>
               </tr>
-              <tr className="bg-indigo-950/40 text-slate-100">
-                <td className="py-3.5 px-4 text-indigo-300">PLANNED vs FINAL OUTPUT</td>
-                <td className="py-3.5 px-4 text-right text-slate-200">
-                  Planned: <span className="text-amber-300">{metrics.planned}</span>
+              <tr className="bg-stone-100/70 text-stone-900 border-t border-stone-200">
+                <td className="py-3 px-4 text-stone-800">PLANNED vs FINAL OUTPUT</td>
+                <td className="py-3 px-4 text-right text-stone-700">
+                  Planned: <span className="text-stone-900 font-extrabold">{metrics.planned}</span>
                 </td>
-                <td className="py-3.5 px-4 text-right text-emerald-400 font-extrabold text-base">
+                <td className="py-3 px-4 text-right text-emerald-800 font-extrabold text-sm">
                   Output: {metrics.finalPassedOutput}
                 </td>
-                <td colSpan={4} className="py-3.5 px-4 text-right text-emerald-300 font-extrabold">
-                  {metrics.efficiency}% Efficiency
-                  {batch.status === 'Completed' ? ' (Final Run)' : ' (Live estimate)'}
+                <td colSpan={4} className="py-3 px-4 text-right text-indigo-900 font-extrabold">
+                  {metrics.efficiency}% Yield
+                  {batch.status === 'Completed' ? ' (Final Output)' : ' (Live estimate)'}
                 </td>
               </tr>
             </tfoot>

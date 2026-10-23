@@ -170,7 +170,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#FAFAF7] text-stone-900 flex flex-col font-sans">
       {/* Top Navigation */}
       <Navbar
         currentRole={currentRole}
@@ -185,8 +185,8 @@ export function App() {
 
       {/* Floating Notification Toast */}
       {notification && (
-        <div className="fixed top-20 right-4 z-50 animate-bounce">
-          <div className="px-4 py-3 rounded-xl bg-slate-900 border border-indigo-500 shadow-2xl text-xs sm:text-sm font-bold text-white flex items-center gap-2">
+        <div className="fixed top-20 right-4 z-50 animate-fadeIn">
+          <div className="px-4 py-3 rounded-xl bg-stone-900 text-white shadow-xl text-xs sm:text-sm font-semibold flex items-center gap-2 border border-stone-800">
             <span>{notification.message}</span>
           </div>
         </div>
@@ -270,14 +270,14 @@ export function App() {
       />
 
       {/* Footer */}
-      <footer className="border-t border-slate-900 py-6 mt-12 bg-slate-950/80 text-center text-xs text-slate-500">
+      <footer className="border-t border-stone-200 py-6 mt-12 bg-white text-center text-xs text-stone-500">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-slate-400">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-            <span>Taskora-AI Garment Production Quantity & Loss Tracking Engine</span>
+          <div className="flex items-center gap-2 text-stone-600 font-medium">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+            <span>Taskora AI — Garment Production Accountability Engine</span>
           </div>
-          <div>
-            Sequence: Cutting &rarr; Stitching &rarr; QC &rarr; Finishing &rarr; Packing
+          <div className="text-stone-400">
+            Pipeline: Cutting &rarr; Stitching &rarr; QC &rarr; Finishing &rarr; Packing
           </div>
         </div>
       </footer>
